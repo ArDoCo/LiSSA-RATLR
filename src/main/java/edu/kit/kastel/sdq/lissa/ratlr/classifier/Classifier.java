@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class Classifier {
     private static final int THREADS = 100;
+    static final String CONFIG_NAME_SEPARATOR = "_";
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,12 +45,10 @@ public abstract class Classifier {
     protected abstract Classifier copyOf();
 
     public static Classifier createClassifier(Configuration.ModuleConfiguration configuration) {
-        return switch (configuration.name()) {
+        return switch (configuration.name().split(CONFIG_NAME_SEPARATOR)[0]) {
         case "mock" -> new MockClassifier();
-        case "simple_ollama" -> new SimpleOllamaClassifier(configuration);
-        case "simple_openai" -> new SimpleOpenAiClassifier(configuration);
-        case "reasoning_ollama" -> new ReasoningOllamaClassifier(configuration);
-        case "reasoning_openai" -> new ReasoningOpenAiClassifier(configuration);
+        case "simple" -> new SimpleClassifier(configuration);
+        case "reasoning" -> new ReasoningClassifier(configuration);
         default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
         };
     }
