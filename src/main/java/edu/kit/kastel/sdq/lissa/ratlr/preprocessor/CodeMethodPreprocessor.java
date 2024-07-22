@@ -101,4 +101,8 @@ public class CodeMethodPreprocessor extends Preprocessor {
         }
         return classBodies;
     }
+
+    public enum Language {
+        JAVA
+    }
 }

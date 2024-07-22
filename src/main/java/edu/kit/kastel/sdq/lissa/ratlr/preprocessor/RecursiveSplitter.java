@@ -157,12 +157,13 @@ class RecursiveSplitter {
         return switch (language) {
         case JAVA -> List.of("\nclass ", "\npublic ", "\nprotected ", "\nprivate ", "\nstatic ", "\nif ", "\nfor ", "\nwhile ", "\nswitch ", "\ncase ", "\n\n",
                 "\n", " ", "");
+            case PYTHON -> List.of("\nclass ",                    "\ndef ",                    "\n\tdef ",                    "\n\n",                    "\n",                    " ",                    "");
         // Add other languages as needed...
         default -> throw new IllegalArgumentException("Unsupported language: " + language);
         };
     }
 
     public enum Language {
-        JAVA
+        JAVA, PYTHON
     }
 }

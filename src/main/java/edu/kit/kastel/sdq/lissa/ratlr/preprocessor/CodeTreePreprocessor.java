@@ -49,4 +49,8 @@ public class CodeTreePreprocessor extends Preprocessor {
         }
         return result;
     }
+
+    public enum Language {
+        JAVA
+    }
 }
