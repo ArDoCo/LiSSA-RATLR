@@ -10,62 +10,102 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     // TODO Handle Token Length better .. 8192 is the length for ada
     private static final int MAX_TOKEN_LENGTH = 8000;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachedEmbeddingCreator.class);
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Cache cache;
     private final EmbeddingModel embeddingModel;
     private final String rawNameOfModel;
+    private final int threads;
 
-    protected CachedEmbeddingCreator(String model) {
+    protected CachedEmbeddingCreator(String model, int threads) {
         this.cache = CacheManager.getDefaultInstance().getCache(this.getClass().getSimpleName() + "_" + Objects.requireNonNull(model));
         this.embeddingModel = Objects.requireNonNull(createEmbeddingModel(model));
         this.rawNameOfModel = model;
+        this.threads = Math.max(1, threads);
     }
 
     protected abstract EmbeddingModel createEmbeddingModel(String model);
 
     @Override
     public final List<float[]> calculateEmbeddings(List<Element> elements) {
+        if (threads == 1)
+            return calculateEmbeddingsSequential(elements);
+
+        int threadCount = Math.min(threads, elements.size());
+        int numberOfElementsPerThread = elements.size() / threadCount;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        List<Future<List<float[]>>> futureResults = new ArrayList<>();
+
+        for (int i = 0; i < threadCount; i++) {
+            int start = i * numberOfElementsPerThread;
+            int end = i == threadCount - 1 ? elements.size() : (i + 1) * numberOfElementsPerThread;
+            List<Element> subList = elements.subList(start, end);
+            futureResults.add(executor.submit(() -> {
+                var embeddingModel = createEmbeddingModel(this.rawNameOfModel);
+                return calculateEmbeddingsSequential(embeddingModel, subList);
+            }));
+        }
+        logger.info("Waiting for classification to finish. Elements in queue: {}", futureResults.size());
+
+        try {
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+        return futureResults.stream().map(Future::resultNow).flatMap(Collection::stream).toList();
+    }
+
+    private List<float[]> calculateEmbeddingsSequential(List<Element> elements) {
+        return this.calculateEmbeddingsSequential(this.embeddingModel, elements);
+    }
+
+    private List<float[]> calculateEmbeddingsSequential(EmbeddingModel embeddingModel, List<Element> elements) {
         List<float[]> embeddings = new ArrayList<>();
         for (Element element : elements) {
-            String key = UUID.nameUUIDFromBytes(element.getContent().getBytes()).toString();
-            float[] cachedEmbedding = cache.get(key, float[].class);
-            if (cachedEmbedding != null) {
-                embeddings.add(cachedEmbedding);
-            } else {
-                logger.info("Calculating embedding for: {}", element.getIdentifier());
-                try {
-                    float[] embedding = embeddingModel.embed(element.getContent()).content().vector();
-                    cache.put(key, embedding);
-                    embeddings.add(embedding);
-                } catch (Exception e) {
-                    logger.error("Error while calculating embedding for .. try to fix ..: {}", element.getIdentifier());
-                    // Probably the length was too long .. check that
-                    tryToFixWithLength(key, element.getContent(), embeddings);
-                }
-            }
+            embeddings.add(calculateFinalEmbedding(embeddingModel, cache, rawNameOfModel, element));
         }
         return embeddings;
     }
 
-    private void tryToFixWithLength(String key, String content, List<float[]> embeddings) {
+    private static float[] calculateFinalEmbedding(EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, Element element) {
+        String key = UUID.nameUUIDFromBytes(element.getContent().getBytes()).toString();
+        float[] cachedEmbedding = cache.get(key, float[].class);
+        if (cachedEmbedding != null) {
+            return cachedEmbedding;
+        } else {
+            LOGGER.info("Calculating embedding for: {}", element.getIdentifier());
+            try {
+                float[] embedding = embeddingModel.embed(element.getContent()).content().vector();
+                cache.put(key, embedding);
+                return embedding;
+            } catch (Exception e) {
+                LOGGER.error("Error while calculating embedding for .. try to fix ..: {}", element.getIdentifier());
+                // Probably the length was too long .. check that
+                return tryToFixWithLength(embeddingModel, cache, rawNameOfModel, key, element.getContent());
+            }
+        }
+    }
+
+    private static float[] tryToFixWithLength(EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, String key, String content) {
         String newKey = key + "_fixed_" + MAX_TOKEN_LENGTH;
         float[] cachedEmbedding = cache.get(newKey, float[].class);
         if (cachedEmbedding != null) {
-            logger.info("using fixed embedding for: {}", key);
-            embeddings.add(cachedEmbedding);
-            return;
+            LOGGER.info("using fixed embedding for: {}", key);
+            return cachedEmbedding;
         }
         EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
-        Encoding encoding = registry.getEncodingForModel(this.rawNameOfModel)
+        Encoding encoding = registry.getEncodingForModel(rawNameOfModel)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown Embedding Model. Don't know how to handle previous exception"));
         int tokens = encoding.countTokens(content);
         if (tokens < MAX_TOKEN_LENGTH)
@@ -86,8 +126,8 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
         }
         String fixedContent = content.substring(0, left);
         float[] embedding = embeddingModel.embed(fixedContent).content().vector();
-        logger.info("using fixed embedding for: {}", key);
+        LOGGER.info("using fixed embedding for: {}", key);
         cache.put(newKey, embedding);
-        embeddings.add(embedding);
+        return embedding;
     }
 }

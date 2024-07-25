@@ -6,9 +6,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.Environment;
 
 public class OpenAiEmbeddingCreator extends CachedEmbeddingCreator {
+    private static final int THREADS = 40;
 
     public OpenAiEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
-        super(configuration.argumentAsString("model", "text-embedding-ada-002"));
+        super(configuration.argumentAsString("model", "text-embedding-ada-002"), THREADS);
     }
 
     @Override

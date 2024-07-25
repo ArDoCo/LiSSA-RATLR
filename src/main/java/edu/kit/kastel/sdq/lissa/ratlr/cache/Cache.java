@@ -14,7 +14,7 @@ import java.util.*;
 
 public class Cache {
     private static final Logger logger = LoggerFactory.getLogger(Cache.class);
-    private static final int MAX_DIRTY = 10;
+    private static final int MAX_DIRTY = 50;
     private final File file;
     private final ObjectMapper mapper;
     private Map<String, String> data = new HashMap<>();

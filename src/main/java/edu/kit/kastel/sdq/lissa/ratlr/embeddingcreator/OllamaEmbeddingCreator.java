@@ -12,7 +12,7 @@ import java.util.Map;
 public class OllamaEmbeddingCreator extends CachedEmbeddingCreator {
 
     public OllamaEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
-        super(configuration.argumentAsString("model", "nomic-embed-text:v1.5"));
+        super(configuration.argumentAsString("model", "nomic-embed-text:v1.5"), 1);
     }
 
     @Override
