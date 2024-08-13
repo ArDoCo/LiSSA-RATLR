@@ -8,6 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This preprocessor splits the code into chunks of a given size.
+ * Configuration:
+ * <ul>
+ * <li> language: the language of the code. Can be multiple languages separated by commas. If so, the file type is determined by the file ending. (i.e., the end
+ * of ID of the artifact)
+ * <li> chunk_size: the size of the chunks
+ * </ul>
+ */
 public class CodeChunkingPreprocessor extends Preprocessor {
 
     private final List<RecursiveSplitter.Language> languages;

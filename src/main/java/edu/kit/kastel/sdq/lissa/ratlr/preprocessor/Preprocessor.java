@@ -6,6 +6,9 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
 import java.util.List;
 
+/**
+ * A preprocessor extracts elements based on the given artifacts.
+ */
 public abstract class Preprocessor {
     public static final String SEPARATOR = "$";
 

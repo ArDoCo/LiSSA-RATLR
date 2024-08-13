@@ -16,6 +16,10 @@ import java.util.Objects;
 
 /**
  * Split at the beginning of a class (class declaration to first split) and beginning of each method (method declaration to second split)
+ * Configuration:
+ * <ul>
+ *     <li> language: the language of the code
+ * </ul>
  */
 public class CodeMethodPreprocessor extends Preprocessor {
 

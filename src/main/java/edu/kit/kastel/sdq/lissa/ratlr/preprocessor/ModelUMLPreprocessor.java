@@ -16,6 +16,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This preprocessor extracts information from a given UML model.
+ * Configuration:
+ * <ul>
+ *     <li> includeUsages: whether to include the usages of components
+ *     <li> includeOperations: whether to include the operations of components and interfaces
+ *     <li> includeInterfaceRealizations: whether to include the interface realizations of components
+ * </ul>
+ */
 public class ModelUMLPreprocessor extends Preprocessor {
     private final boolean includeUsages;
     private final boolean includeOperations;

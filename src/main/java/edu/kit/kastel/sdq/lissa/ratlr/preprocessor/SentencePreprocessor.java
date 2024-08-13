@@ -8,6 +8,9 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This preprocessor splits a text into sentences.
+ */
 public class SentencePreprocessor extends Preprocessor {
     public SentencePreprocessor(Configuration.ModuleConfiguration configuration) {
     }
