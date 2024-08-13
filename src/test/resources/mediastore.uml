@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_7zbcYHDhEeSqnN80MQ2uGw" name="defaultRepository">
+  <packagedElement xmi:type="uml:Interface" xmi:id="_s3KlgHDuEeSqnN80MQ2uGw" name="IPackaging">
+    <ownedOperation xmi:id="_ydHhYHDuEeSqnN80MQ2uGw" name="zip"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_68uVELg2EeSNPorBlo7x9g" name="IDB">
+    <ownedOperation xmi:id="_YeL7cL5kEeSjpppo_XMujw" name="getFileList"/>
+    <ownedOperation xmi:id="_72wUYLg2EeSNPorBlo7x9g" name="query"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_Nv-1oHDvEeSqnN80MQ2uGw" name="IMediaManagement">
+    <ownedOperation xmi:id="_Q_yZgHDvEeSqnN80MQ2uGw" name="download"/>
+    <ownedOperation xmi:id="_Qa8AAHDvEeSqnN80MQ2uGw" name="upload"/>
+    <ownedOperation xmi:id="_Rv19cHDvEeSqnN80MQ2uGw" name="getFileList"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_jf7hMLg7EeSNPorBlo7x9g" name="IFileStorage">
+    <ownedOperation xmi:id="_lLuUoLg7EeSNPorBlo7x9g" name="getFiles"/>
+    <ownedOperation xmi:id="_ZlS-sL0KEeSAHuL4ItXOLQ" name="storeFile"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_4TPZgHDpEeSqnN80MQ2uGw" name="IUserDB">
+    <ownedOperation xmi:id="_7EO6cHDpEeSqnN80MQ2uGw" name="addUser"/>
+    <ownedOperation xmi:id="_8ARE4HDpEeSqnN80MQ2uGw" name="getUserData"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_4QwQwHDqEeSqnN80MQ2uGw" name="IDownload">
+    <ownedOperation xmi:id="_-LhmEHDqEeSqnN80MQ2uGw" name="download"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_NeTaUHDwEeSqnN80MQ2uGw" name="IFacade">
+    <ownedOperation xmi:id="_SxZroHDwEeSqnN80MQ2uGw" name="getFileList"/>
+    <ownedOperation xmi:id="_SzTwIHDwEeSqnN80MQ2uGw" name="register"/>
+    <ownedOperation xmi:id="_Ss-eoHDwEeSqnN80MQ2uGw" name="upload"/>
+    <ownedOperation xmi:id="_gQd40HDwEeSqnN80MQ2uGw" name="download"/>
+    <ownedOperation xmi:id="_gMMc0HDwEeSqnN80MQ2uGw" name="login"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_psfEIHDsEeSqnN80MQ2uGw" name="IMediaAccess">
+    <ownedOperation xmi:id="_z17ZUHDsEeSqnN80MQ2uGw" name="getFileList"/>
+    <ownedOperation xmi:id="_xHigcHDsEeSqnN80MQ2uGw" name="upload"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Interface" xmi:id="_jAJnML0YEeSAHuL4ItXOLQ" name="IUserManagement">
+    <ownedOperation xmi:id="_kEq_QL0YEeSAHuL4ItXOLQ" name="register"/>
+    <ownedOperation xmi:id="_ktDN4L0YEeSAHuL4ItXOLQ" name="login"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_j5vZQLhEEeSNPorBlo7x9g" name="Cache">
+    <interfaceRealization xmi:id="_bD02aB8CEe2st8EPFuwF6A" client="_j5vZQLhEEeSNPorBlo7x9g" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02aR8CEe2st8EPFuwF6A" client="_j5vZQLhEEeSNPorBlo7x9g" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_h_QpkLhEEeSNPorBlo7x9g" name="TagWatermarking">
+    <interfaceRealization xmi:id="_bD02ax8CEe2st8EPFuwF6A" client="_h_QpkLhEEeSNPorBlo7x9g" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02bB8CEe2st8EPFuwF6A" client="_h_QpkLhEEeSNPorBlo7x9g" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_9eK7YHDrEeSqnN80MQ2uGw" name="MediaAccess">
+    <interfaceRealization xmi:id="_bD02bh8CEe2st8EPFuwF6A" client="_9eK7YHDrEeSqnN80MQ2uGw" supplier="_psfEIHDsEeSqnN80MQ2uGw" contract="_psfEIHDsEeSqnN80MQ2uGw"/>
+    <interfaceRealization xmi:id="_bD02bx8CEe2st8EPFuwF6A" client="_9eK7YHDrEeSqnN80MQ2uGw" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02cB8CEe2st8EPFuwF6A" client="_9eK7YHDrEeSqnN80MQ2uGw" supplier="_jf7hMLg7EeSNPorBlo7x9g"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02cR8CEe2st8EPFuwF6A" client="_9eK7YHDrEeSqnN80MQ2uGw" supplier="_68uVELg2EeSNPorBlo7x9g"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_5LN7MLg2EeSNPorBlo7x9g" name="DB">
+    <interfaceRealization xmi:id="_bD02cx8CEe2st8EPFuwF6A" client="_5LN7MLg2EeSNPorBlo7x9g" supplier="_68uVELg2EeSNPorBlo7x9g" contract="_68uVELg2EeSNPorBlo7x9g"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_qxAiILg7EeSNPorBlo7x9g" name="FileStorage">
+    <interfaceRealization xmi:id="_bD02dR8CEe2st8EPFuwF6A" client="_qxAiILg7EeSNPorBlo7x9g" supplier="_jf7hMLg7EeSNPorBlo7x9g" contract="_jf7hMLg7EeSNPorBlo7x9g"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_tBjC0HDpEeSqnN80MQ2uGw" name="UserDBAdapter">
+    <interfaceRealization xmi:id="_bD02dx8CEe2st8EPFuwF6A" client="_tBjC0HDpEeSqnN80MQ2uGw" supplier="_4TPZgHDpEeSqnN80MQ2uGw" contract="_4TPZgHDpEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02eB8CEe2st8EPFuwF6A" client="_tBjC0HDpEeSqnN80MQ2uGw" supplier="_68uVELg2EeSNPorBlo7x9g"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_S-lawHDqEeSqnN80MQ2uGw2" name="ParallelWatermarking">
+    <interfaceRealization xmi:id="_bD02eh8CEe2st8EPFuwF6A" client="_S-lawHDqEeSqnN80MQ2uGw2" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02ex8CEe2st8EPFuwF6A" client="_S-lawHDqEeSqnN80MQ2uGw2" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_Fslt8OXSEeSa__lJ2-JCxw" name="DownloadLoadBalancer">
+    <interfaceRealization xmi:id="_bD02fR8CEe2st8EPFuwF6A" client="_Fslt8OXSEeSa__lJ2-JCxw" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02fh8CEe2st8EPFuwF6A" client="_Fslt8OXSEeSa__lJ2-JCxw" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02fx8CEe2st8EPFuwF6A" client="_Fslt8OXSEeSa__lJ2-JCxw" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_p_EeYHDrEeSqnN80MQ2uGw" name="MediaManagement">
+    <interfaceRealization xmi:id="_bD02gR8CEe2st8EPFuwF6A" client="_p_EeYHDrEeSqnN80MQ2uGw" supplier="_Nv-1oHDvEeSqnN80MQ2uGw" contract="_Nv-1oHDvEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02gh8CEe2st8EPFuwF6A" client="_p_EeYHDrEeSqnN80MQ2uGw" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02gx8CEe2st8EPFuwF6A" client="_p_EeYHDrEeSqnN80MQ2uGw" supplier="_s3KlgHDuEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02hB8CEe2st8EPFuwF6A" client="_p_EeYHDrEeSqnN80MQ2uGw" supplier="_psfEIHDsEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_ahv3gL0YEeSAHuL4ItXOLQ" name="UserManagement">
+    <interfaceRealization xmi:id="_bD02hh8CEe2st8EPFuwF6A" client="_ahv3gL0YEeSAHuL4ItXOLQ" supplier="_jAJnML0YEeSAHuL4ItXOLQ" contract="_jAJnML0YEeSAHuL4ItXOLQ"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02hx8CEe2st8EPFuwF6A" client="_ahv3gL0YEeSAHuL4ItXOLQ" supplier="_4TPZgHDpEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_S-lawHDqEeSqnN80MQ2uGw" name="AudioWatermarking">
+    <interfaceRealization xmi:id="_bD02iR8CEe2st8EPFuwF6A" client="_S-lawHDqEeSqnN80MQ2uGw" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02ih8CEe2st8EPFuwF6A" client="_S-lawHDqEeSqnN80MQ2uGw" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_st2Y0HDrEeSqnN80MQ2uGw" name="Facade">
+    <interfaceRealization xmi:id="_bD02jB8CEe2st8EPFuwF6A" client="_st2Y0HDrEeSqnN80MQ2uGw" supplier="_NeTaUHDwEeSqnN80MQ2uGw" contract="_NeTaUHDwEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02jR8CEe2st8EPFuwF6A" client="_st2Y0HDrEeSqnN80MQ2uGw" supplier="_Nv-1oHDvEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02jh8CEe2st8EPFuwF6A" client="_st2Y0HDrEeSqnN80MQ2uGw" supplier="_jAJnML0YEeSAHuL4ItXOLQ"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_B5geQHDsEeSqnN80MQ2uGw" name="Packaging">
+    <interfaceRealization xmi:id="_bD02kB8CEe2st8EPFuwF6A" client="_B5geQHDsEeSqnN80MQ2uGw" supplier="_s3KlgHDuEeSqnN80MQ2uGw" contract="_s3KlgHDuEeSqnN80MQ2uGw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Component" xmi:id="_o10-YHDrEeSqnN80MQ2uGw" name="Reencoding">
+    <interfaceRealization xmi:id="_bD02kh8CEe2st8EPFuwF6A" client="_o10-YHDrEeSqnN80MQ2uGw" supplier="_4QwQwHDqEeSqnN80MQ2uGw" contract="_4QwQwHDqEeSqnN80MQ2uGw"/>
+    <packagedElement xmi:type="uml:Usage" xmi:id="_bD02kx8CEe2st8EPFuwF6A" client="_o10-YHDrEeSqnN80MQ2uGw" supplier="_4QwQwHDqEeSqnN80MQ2uGw"/>
+  </packagedElement>
+</uml:Model>

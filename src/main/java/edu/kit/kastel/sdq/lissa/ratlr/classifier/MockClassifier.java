@@ -6,8 +6,8 @@ import java.util.List;
 
 public class MockClassifier extends Classifier {
     @Override
-    protected ClassificationResult classify(Element source, List<Element> targets) {
-        return new ClassificationResult(source, targets);
+    protected List<ClassificationResult> classify(Element source, List<Element> targets) {
+        return targets.stream().map(target -> ClassificationResult.of(source, target)).toList();
     }
 
     @Override

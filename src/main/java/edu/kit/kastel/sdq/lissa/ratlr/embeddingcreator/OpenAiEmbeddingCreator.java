@@ -6,13 +6,14 @@ import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.Environment;
 
 public class OpenAiEmbeddingCreator extends CachedEmbeddingCreator {
+    private static final int THREADS = 40;
 
     public OpenAiEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
-        super(configuration.argumentAsString("model", "text-embedding-ada-002"));
+        super(configuration.argumentAsString("model", "text-embedding-ada-002"), THREADS);
     }
 
     @Override
-    protected EmbeddingModel createEmbeddingModel(String model) {
+    protected EmbeddingModel createEmbeddingModel(String model, String... params) {
         String openAiOrganizationId = Environment.getenv("OPENAI_ORGANIZATION_ID");
         String openAiApiKey = Environment.getenv("OPENAI_API_KEY");
         if (openAiOrganizationId == null || openAiApiKey == null) {

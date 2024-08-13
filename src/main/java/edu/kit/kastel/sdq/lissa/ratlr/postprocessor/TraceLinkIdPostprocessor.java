@@ -8,12 +8,12 @@ import java.util.Set;
 public abstract class TraceLinkIdPostprocessor {
     public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(Configuration.ModuleConfiguration moduleConfiguration) {
         return switch (moduleConfiguration.name()) {
-        case "req2code" -> new ReqCodePostprocessor();
-        case "sad2code" -> new SadCodePostprocessor();
+            case "req2code" -> new ReqCodePostprocessor();
+            case "sad2code" -> new SadCodePostprocessor();
 
-        case "identity" -> new IdentityPostprocessor();
-        case null -> new IdentityPostprocessor();
-        default -> throw new IllegalStateException("Unexpected value: " + moduleConfiguration.name());
+            case "identity" -> new IdentityPostprocessor();
+            case null -> new IdentityPostprocessor();
+            default -> throw new IllegalStateException("Unexpected value: " + moduleConfiguration.name());
         };
     }
 

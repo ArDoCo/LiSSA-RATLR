@@ -43,4 +43,5 @@ build/
 /configs
 /execution
 /results*.tgz
+/evaluation
 

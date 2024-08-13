@@ -3,12 +3,10 @@ package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
-import org.apache.jena.riot.Lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class CodeChunkingPreprocessor extends Preprocessor {
 
@@ -49,12 +47,12 @@ public class CodeChunkingPreprocessor extends Preprocessor {
 
     private List<String> generateSegments(Artifact artifact) {
         RecursiveSplitter.Language language = languages.size() == 1 ? languages.get(0) : getLanguage(artifact);
-       return  RecursiveSplitter.fromLanguage(language, chunkSize).splitText(artifact.getContent());
+        return RecursiveSplitter.fromLanguage(language, chunkSize).splitText(artifact.getContent());
     }
 
     private RecursiveSplitter.Language getLanguage(Artifact artifact) {
         String ending = artifact.getIdentifier().substring(artifact.getIdentifier().lastIndexOf(".") + 1);
-        return switch (ending){
+        return switch (ending) {
             case "java" -> RecursiveSplitter.Language.JAVA;
             case "py" -> RecursiveSplitter.Language.PYTHON;
             default -> throw new IllegalArgumentException("Unsupported language: " + ending);
