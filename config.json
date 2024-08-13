@@ -44,7 +44,7 @@
     }
   },
   "classifier" : {
-    "name" : "reasoning_openai",
+    "name" : "simple_openai",
     "args" : {
       "model": "gpt-4o-mini-2024-07-18"
     }
