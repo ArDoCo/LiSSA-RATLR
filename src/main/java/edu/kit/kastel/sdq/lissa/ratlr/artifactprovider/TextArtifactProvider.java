@@ -12,6 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
+/**
+ * Provides text-based artifact for a configured path. The filename is used as identifier.
+ * Configuration:
+ * <ul>
+ * <li> path: the path to the file
+ * <li> artifact_type: the type of the artifact
+ * </ul>
+ */
 public class TextArtifactProvider extends ArtifactProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(TextArtifactProvider.class);

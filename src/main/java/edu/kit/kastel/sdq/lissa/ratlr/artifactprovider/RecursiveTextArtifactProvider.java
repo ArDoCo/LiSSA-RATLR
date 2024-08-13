@@ -9,6 +9,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Scanner;
 
+/**
+ * Provides text-based and other artifacts for a configured path. The relative path is used as identifier.
+ * Configuration:
+ * <ul>
+ * <li> path: the path to the directory containing the artifacts
+ * <li> artifact_type: the type of the artifact
+ * <li> extensions: the file extensions to consider
+ * </ul>
+ */
 public class RecursiveTextArtifactProvider extends TextArtifactProvider {
 
     private final String[] extensions;

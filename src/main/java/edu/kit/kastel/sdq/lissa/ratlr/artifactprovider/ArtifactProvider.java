@@ -5,7 +5,14 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 
 import java.util.List;
 
+/**
+ * Provides artifacts for LiSSA approach.
+ */
 public abstract class ArtifactProvider {
+
+    /**
+     * Returns the artifacts provided by this provider.
+     */
     public abstract List<Artifact> getArtifacts();
 
     public abstract Artifact getArtifact(String identifier);
