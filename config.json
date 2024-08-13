@@ -1,22 +1,22 @@
 {
-  "cache_dir": "./cache/smos",
+  "cache_dir": "./evaluation/smos/cache",
 
   "gold_standard_configuration": {
-    "path": "./datasets/SMOS/UC2CC.csv"
+    "path": "./evaluation/smos/datasets/SMOS/UC2CC.csv"
   },
-
+  
   "source_artifact_provider" : {
     "name" : "text",
     "args" : {
       "artifact_type" : "requirement",
-      "path" : "./datasets/SMOS/UC"
+      "path" : "./evaluation/smos/datasets/SMOS/UC"
     }
   },
   "target_artifact_provider" : {
     "name" : "text",
     "args" : {
       "artifact_type" : "source code",
-      "path" : "./datasets/SMOS/CC"
+      "path" : "./evaluation/smos/datasets/SMOS/CC"
     }
   },
   "source_preprocessor" : {
@@ -30,7 +30,7 @@
   "embedding_creator" : {
     "name" : "openai",
     "args" : {
-      "model" : "text-embedding-3-large"
+      "model": "text-embedding-3-large"
     }
   },
   "source_store" : {
@@ -44,15 +44,14 @@
     }
   },
   "classifier" : {
-    "name" : "simple_openai",
+    "name" : "reasoning_openai",
     "args" : {
-      "model" : "gpt-4o-mini-2024-07-18"
+      "model": "gpt-4o-mini-2024-07-18"
     }
   },
   "result_aggregator" : {
     "name" : "any_connection",
-    "args" : {
-    }
+    "args" : { }
   },
   "tracelinkid_postprocessor" : {
     "name" : "req2code",
