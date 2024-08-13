@@ -13,8 +13,8 @@ public abstract class ResultAggregator {
 
     public static ResultAggregator createResultAggregator(Configuration.ModuleConfiguration configuration) {
         return switch (configuration.name()) {
-        case "any_connection" -> new AnyResultAggregator(configuration);
-        default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
+            case "any_connection" -> new AnyResultAggregator(configuration);
+            default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
         };
     }
 }

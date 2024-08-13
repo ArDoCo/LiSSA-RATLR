@@ -47,10 +47,10 @@ public abstract class Classifier {
 
     public static Classifier createClassifier(Configuration.ModuleConfiguration configuration) {
         return switch (configuration.name().split(CONFIG_NAME_SEPARATOR)[0]) {
-        case "mock" -> new MockClassifier();
-        case "simple" -> new SimpleClassifier(configuration);
-        case "reasoning" -> new ReasoningClassifier(configuration);
-        default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
+            case "mock" -> new MockClassifier();
+            case "simple" -> new SimpleClassifier(configuration);
+            case "reasoning" -> new ReasoningClassifier(configuration);
+            default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
         };
     }
 

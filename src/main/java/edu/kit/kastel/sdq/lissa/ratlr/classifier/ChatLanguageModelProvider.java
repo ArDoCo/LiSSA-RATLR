@@ -30,17 +30,17 @@ public class ChatLanguageModelProvider {
 
     public ChatLanguageModel createChatModel() {
         return switch (platform) {
-        case OPENAI -> createOpenAiChatModel(model);
-        case OLLAMA -> createOllamaChatModel(model);
-        default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
+            case OPENAI -> createOpenAiChatModel(model);
+            case OLLAMA -> createOllamaChatModel(model);
+            default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
     }
 
     private void initModelPlatform(Configuration.ModuleConfiguration configuration) {
         this.model = switch (platform) {
-        case OPENAI -> configuration.argumentAsString("model", "gpt-4o-mini");
-        case OLLAMA -> configuration.argumentAsString("model", "llama3:8b");
-        default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
+            case OPENAI -> configuration.argumentAsString("model", "gpt-4o-mini");
+            case OLLAMA -> configuration.argumentAsString("model", "llama3:8b");
+            default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
     }
 
