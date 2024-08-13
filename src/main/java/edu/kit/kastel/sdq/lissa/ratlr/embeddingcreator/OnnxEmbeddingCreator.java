@@ -9,7 +9,7 @@ import java.io.File;
 
 public class OnnxEmbeddingCreator extends CachedEmbeddingCreator {
     public OnnxEmbeddingCreator(String model, String pathToModel, String pathToTokenizer) {
-        super(model, pathToModel, pathToTokenizer);
+        super(model, 1, pathToModel, pathToTokenizer);
     }
 
     public OnnxEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
