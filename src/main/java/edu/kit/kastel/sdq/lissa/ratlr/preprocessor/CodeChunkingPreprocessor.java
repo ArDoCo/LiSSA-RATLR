@@ -46,7 +46,7 @@ public class CodeChunkingPreprocessor extends Preprocessor {
     }
 
     private List<String> generateSegments(Artifact artifact) {
-        RecursiveSplitter.Language language = languages.size() == 1 ? languages.get(0) : getLanguage(artifact);
+        RecursiveSplitter.Language language = languages.size() == 1 ? languages.getFirst() : getLanguage(artifact);
         return RecursiveSplitter.fromLanguage(language, chunkSize).splitText(artifact.getContent());
     }
 
