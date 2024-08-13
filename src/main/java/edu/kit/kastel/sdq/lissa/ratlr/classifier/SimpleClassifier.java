@@ -46,7 +46,7 @@ public class SimpleClassifier extends Classifier {
     }
 
     @Override
-    protected final ClassificationResult classify(Element source, List<Element> targets) {
+    protected final List<ClassificationResult> classify(Element source, List<Element> targets) {
         List<Element> relatedTargets = new ArrayList<>();
 
         for (var target : targets) {
@@ -56,7 +56,7 @@ public class SimpleClassifier extends Classifier {
                 relatedTargets.add(target);
             }
         }
-        return new ClassificationResult(source, relatedTargets);
+        return relatedTargets.stream().map(relatedTarget -> ClassificationResult.of(source, relatedTarget)).toList();
     }
 
     private String classify(Element source, Element target) {

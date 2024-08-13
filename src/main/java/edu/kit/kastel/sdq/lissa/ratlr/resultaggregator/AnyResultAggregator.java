@@ -1,7 +1,7 @@
 package edu.kit.kastel.sdq.lissa.ratlr.resultaggregator;
 
 import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
-import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
+import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
@@ -19,16 +19,15 @@ public class AnyResultAggregator extends ResultAggregator {
     }
 
     @Override
-    public Set<TraceLink> aggregate(List<Element> sourceElements, List<Element> targetElements, List<Classifier.ClassificationResult> classificationResults) {
+    public Set<TraceLink> aggregate(List<Element> sourceElements, List<Element> targetElements, List<ClassificationResult> classificationResults) {
         Set<TraceLink> traceLinks = new LinkedHashSet<>();
         for (var result : classificationResults) {
             var sourceElementsForTraceLink = buildListOfValidElements(result.source(), sourceGranularity, sourceElements);
-            for (var target : result.targets()) {
-                var targetElementsForTraceLink = buildListOfValidElements(target, targetGranularity, targetElements);
-                for (var sourceElement : sourceElementsForTraceLink) {
-                    for (var targetElement : targetElementsForTraceLink) {
-                        traceLinks.add(new TraceLink(sourceElement.getIdentifier(), targetElement.getIdentifier()));
-                    }
+            var target = result.target();
+            var targetElementsForTraceLink = buildListOfValidElements(target, targetGranularity, targetElements);
+            for (var sourceElement : sourceElementsForTraceLink) {
+                for (var targetElement : targetElementsForTraceLink) {
+                    traceLinks.add(new TraceLink(sourceElement.getIdentifier(), targetElement.getIdentifier()));
                 }
             }
         }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,7 +21,7 @@ public abstract class Classifier {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public List<ClassificationResult> classify(ElementStore sourceStore, ElementStore targetStore) {
-        List<Future<ClassificationResult>> futureResults = new ArrayList<>();
+        List<Future<List<ClassificationResult>>> futureResults = new ArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(THREADS);
         for (var query : sourceStore.getAllElements(true)) {
             var targetCandidates = targetStore.findSimilar(query.second());
@@ -37,10 +38,10 @@ public abstract class Classifier {
             throw new IllegalStateException(e);
         }
 
-        return futureResults.stream().map(Future::resultNow).toList();
+        return futureResults.stream().map(Future::resultNow).flatMap(Collection::stream).toList();
     }
 
-    protected abstract ClassificationResult classify(Element source, List<Element> targets);
+    protected abstract List<ClassificationResult> classify(Element source, List<Element> targets);
 
     protected abstract Classifier copyOf();
 
@@ -53,6 +54,4 @@ public abstract class Classifier {
         };
     }
 
-    public record ClassificationResult(Element source, List<Element> targets) {
-    }
 }
