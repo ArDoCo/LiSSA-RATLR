@@ -2,6 +2,7 @@ package edu.kit.kastel.sdq.lissa.ratlr;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -11,7 +12,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public record Configuration(@JsonProperty("source_artifact_provider") ModuleConfiguration sourceArtifactProvider,
+public record Configuration(@JsonProperty("cache_dir") String cacheDir,
+                            @JsonProperty("gold_standard_configuration") GoldStandardConfiguration goldStandardConfiguration,
+                            @JsonProperty("source_artifact_provider") ModuleConfiguration sourceArtifactProvider,
                             @JsonProperty("target_artifact_provider") ModuleConfiguration targetArtifactProvider,
                             @JsonProperty("source_preprocessor") ModuleConfiguration sourcePreprocessor,
                             @JsonProperty("target_preprocessor") ModuleConfiguration targetPreprocessor,
@@ -33,7 +36,10 @@ public record Configuration(@JsonProperty("source_artifact_provider") ModuleConf
         if (traceLinkIdPostprocessor != null) {
             traceLinkIdPostprocessor.finalizeForSerialization();
         }
-        return new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(this);
+        return new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
+    }
+
+    public record GoldStandardConfiguration(@JsonProperty("path") String path, @JsonProperty(defaultValue = "false") boolean hasHeader) {
     }
 
     public static final class ModuleConfiguration {

@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager.DEFAULT_CACHE_DIRECTORY;
+
 @CommandLine.Command(name = "merge", mixinStandardHelpOptions = true, description = "Merges cache files of source paths into own default cache or target path")
 public class MergeCommand implements Runnable {
 
@@ -72,7 +74,7 @@ public class MergeCommand implements Runnable {
         }
 
         private static CacheManager getCacheManager(Path cacheDir) throws IOException {
-            return cacheDir == null || CacheManager.isSameAsDefaultCache(cacheDir) ? CacheManager.getDefaultInstance() : new CacheManager(cacheDir);
+            return cacheDir == null ? new CacheManager(Path.of(DEFAULT_CACHE_DIRECTORY)) : new CacheManager(cacheDir);
         }
     }
 }

@@ -10,7 +10,7 @@ import java.util.*;
  * This preprocessor creates a tree structure from the code artifacts. It does not only consider code files but also the package declaration.
  * Configuration:
  * <ul>
- *     <li> language: the language of the code
+ * <li> language: the language of the code
  * </ul>
  */
 public class CodeTreePreprocessor extends Preprocessor {

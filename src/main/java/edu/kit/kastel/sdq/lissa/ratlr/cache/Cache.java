@@ -20,7 +20,7 @@ public class Cache {
     private Map<String, String> data = new HashMap<>();
     private int dirty = 0;
 
-    public Cache(String cacheFile) {
+    Cache(String cacheFile) {
         file = new File(cacheFile);
         mapper = new ObjectMapper();
         if (file.exists()) {

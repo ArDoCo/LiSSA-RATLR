@@ -7,11 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class CacheManager {
-    private static final String DEFAULT_CACHE_DIR = "cache";
-    private static final Path DEFAULT_CACHE_DIR_PATH = Path.of(DEFAULT_CACHE_DIR);
-    private static CacheManager defaultInstance = new CacheManager();
-    private final Path cacheDir;
+    public static final String DEFAULT_CACHE_DIRECTORY = "cache";
+
+    private static CacheManager DEFAULT_INSTANCE_MANAGER;
+    private final Path directoryOfCaches;
     private final Map<String, Cache> caches = new HashMap<>();
+
+    public static synchronized void setCacheDir(String directory) throws IOException {
+        if (DEFAULT_INSTANCE_MANAGER != null) {
+            throw new IllegalStateException("Cache directory already set");
+        }
+        DEFAULT_INSTANCE_MANAGER = new CacheManager(Path.of(directory == null ? DEFAULT_CACHE_DIRECTORY : directory));
+    }
 
     /**
      * Creates a new instance using the specified cache directory.
@@ -19,39 +26,22 @@ public final class CacheManager {
      * Use {@link CacheManager#getDefaultInstance()} to access the default cache directory.
      * 
      * @param cacheDir the cache directory to use
-     * @throws IOException
      * @throws IllegalArgumentException if the default cache directory is provided or cacheDir is not a directory
      */
     public CacheManager(Path cacheDir) throws IOException {
-        if (isSameAsDefaultCache(cacheDir)) {
-            throw new IllegalArgumentException("accessing the default cache directory this way is permitted");
-        }
+        if (!Files.exists(cacheDir))
+            Files.createDirectory(cacheDir);
         if (!Files.isDirectory(cacheDir)) {
             throw new IllegalArgumentException("path is not a directory: " + cacheDir);
         }
-        this.cacheDir = cacheDir;
-    }
+        this.directoryOfCaches = cacheDir;
 
-    /**
-     * Creates a new instance using {@link #DEFAULT_CACHE_DIR} as cache directory.
-     * The directory is created if it doesn't exist.
-     */
-    private CacheManager() {
-        this.cacheDir = DEFAULT_CACHE_DIR_PATH;
-        if (Files.notExists(cacheDir)) {
-            try {
-                Files.createDirectory(cacheDir);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public static CacheManager getDefaultInstance() {
-        if (defaultInstance == null) {
-            defaultInstance = new CacheManager();
-        }
-        return defaultInstance;
+        if (DEFAULT_INSTANCE_MANAGER == null)
+            throw new IllegalStateException("Cache directory not set");
+        return DEFAULT_INSTANCE_MANAGER;
     }
 
     /**
@@ -71,7 +61,7 @@ public final class CacheManager {
             return caches.get(name);
         }
 
-        Cache cache = new Cache(cacheDir + "/" + name + (appendEnding ? ".json" : ""));
+        Cache cache = new Cache(directoryOfCaches + "/" + name + (appendEnding ? ".json" : ""));
         caches.put(name, cache);
         return cache;
     }
@@ -85,25 +75,10 @@ public final class CacheManager {
      * @throws IllegalArgumentException if the file does not exist or is a directory
      */
     public Cache getCache(Path path, boolean create) {
-        path = cacheDir.resolve(path.getFileName());
+        path = directoryOfCaches.resolve(path.getFileName());
         if ((!create && Files.notExists(path)) || Files.isDirectory(path)) {
             throw new IllegalArgumentException("file does not exist or is a directory: " + path);
         }
         return getCache(path.getFileName().toString(), false);
-    }
-
-    public Path getCacheDir() {
-        return cacheDir;
-    }
-
-    /**
-     * Returns whether the path points to the default cache directory.
-     * 
-     * @param cacheDir the cache path to check
-     * @return whether the path points to the default cache directory
-     * @throws IOException
-     */
-    public static boolean isSameAsDefaultCache(Path cacheDir) throws IOException {
-        return Files.isSameFile(DEFAULT_CACHE_DIR_PATH, cacheDir);
     }
 }

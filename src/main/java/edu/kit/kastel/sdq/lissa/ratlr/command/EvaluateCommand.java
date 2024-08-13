@@ -17,12 +17,6 @@ import java.util.List;
 public class EvaluateCommand implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(EvaluateCommand.class);
 
-    @CommandLine.Parameters(description = "The path to the ground truth file.")
-    private Path groundTruth;
-
-    @CommandLine.Option(names = { "-h", "--header" }, description = "Skips the first line of the ground truth due to being a header.")
-    private boolean hasHeader;
-
     @CommandLine.Option(names = { "-c",
             "--configs" }, arity = "1..*", description = "Specifies one or more config paths to be invoked by the pipeline iteratively. If the path points to a directory, all files inside are chosen to get invoked.")
     private Path[] configs;
@@ -45,7 +39,7 @@ public class EvaluateCommand implements Runnable {
         configsToEvaluate.forEach(config -> {
             logger.info("Invoking the pipeline with '%s'".formatted(config));
             try {
-                new Evaluation(groundTruth, hasHeader, config).run();
+                new Evaluation(config).run();
             } catch (Exception e) {
                 logger.warn("Configuration '%s' threw an exception: %s".formatted(config, e.getMessage()));
             }

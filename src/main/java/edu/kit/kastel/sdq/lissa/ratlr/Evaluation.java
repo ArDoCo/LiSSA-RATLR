@@ -25,13 +25,9 @@ import java.util.stream.Collectors;
 public class Evaluation {
 
     private static final Logger logger = LoggerFactory.getLogger(Evaluation.class);
-    private final Path groundTruth;
-    private final boolean hasHeader;
     private final Path config;
 
-    public Evaluation(Path groundTruth, boolean hasHeader, Path config) {
-        this.groundTruth = groundTruth;
-        this.hasHeader = hasHeader;
+    public Evaluation(Path config) {
         this.config = config;
     }
 
@@ -54,6 +50,9 @@ public class Evaluation {
         TraceLinkIdPostprocessor traceLinkIdPostProcessor = TraceLinkIdPostprocessor.createTraceLinkIdPostprocessor(configuration.traceLinkIdPostprocessor());
 
         configuration.serializeAndDestroyConfiguration();
+
+        if (configuration.goldStandardConfiguration() == null)
+            throw new IllegalArgumentException("Gold standard configuration is missing");
 
         // RUN
         logger.info("Loading artifacts");
@@ -84,10 +83,10 @@ public class Evaluation {
     }
 
     private void generateStatistics(Set<TraceLink> traceLinks, Configuration configuration) throws IOException {
-        logger.info("Skipping header: {}", hasHeader);
-        Set<TraceLink> validTraceLinks = Files.readAllLines(groundTruth)
+        logger.info("Skipping header: {}", configuration.goldStandardConfiguration().hasHeader());
+        Set<TraceLink> validTraceLinks = Files.readAllLines(Path.of(configuration.goldStandardConfiguration().path()))
                 .stream()
-                .skip(hasHeader ? 1 : 0)
+                .skip(configuration.goldStandardConfiguration().hasHeader() ? 1 : 0)
                 .map(l -> l.split(","))
                 .map(it -> new TraceLink(it[0], it[1]))
                 .collect(Collectors.toSet());

@@ -2,6 +2,7 @@ package edu.kit.kastel.sdq.lissa.ratlr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.kit.kastel.sdq.lissa.ratlr.artifactprovider.ArtifactProvider;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator.EmbeddingCreator;
@@ -27,6 +28,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Configuration configuration = new ObjectMapper().readValue(new File("config.json"), Configuration.class);
+        CacheManager.setCacheDir(configuration.cacheDir());
 
         ArtifactProvider sourceArtifactProvider = ArtifactProvider.createArtifactProvider(configuration.sourceArtifactProvider());
         ArtifactProvider targetArtifactProvider = ArtifactProvider.createArtifactProvider(configuration.targetArtifactProvider());
@@ -70,18 +72,18 @@ public class Main {
         traceLinks = traceLinkIdPostProcessor.postprocess(traceLinks);
 
         logger.info("Evaluating Results");
-        generateStatistics(args, traceLinks, configuration);
+        generateStatistics(traceLinks, configuration);
         saveTraceLinks(traceLinks, configuration);
     }
 
-    private static void generateStatistics(String[] args, Set<TraceLink> traceLinks, Configuration configuration) throws IOException {
-        if (args.length == 0) {
+    private static void generateStatistics(Set<TraceLink> traceLinks, Configuration configuration) throws IOException {
+        if (configuration.goldStandardConfiguration() == null || configuration.goldStandardConfiguration().path() == null) {
             logger.info("Skipping statistics generation since no path to ground truth has been provided as first command line argument");
             return;
         }
 
-        File groundTruth = new File(args[GROUND_TRUTH_INDEX]);
-        boolean header = args.length > 1 && args[1].equals("header");
+        File groundTruth = new File(configuration.goldStandardConfiguration().path());
+        boolean header = configuration.goldStandardConfiguration().hasHeader();
         logger.info("Skipping header: {}", header);
         Set<TraceLink> validTraceLinks = Files.readAllLines(groundTruth.toPath())
                 .stream()
