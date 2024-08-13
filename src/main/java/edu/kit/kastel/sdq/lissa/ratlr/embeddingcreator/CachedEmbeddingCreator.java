@@ -19,18 +19,18 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     // TODO Handle Token Length better .. 8192 is the length for ada
     private static final int MAX_TOKEN_LENGTH = 8000;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Cache cache;
     private final EmbeddingModel embeddingModel;
     private final String rawNameOfModel;
 
-    protected CachedEmbeddingCreator(String model) {
+    protected CachedEmbeddingCreator(String model, String... params) {
         this.cache = CacheManager.getDefaultInstance().getCache(this.getClass().getSimpleName() + "_" + Objects.requireNonNull(model));
-        this.embeddingModel = Objects.requireNonNull(createEmbeddingModel(model));
+        this.embeddingModel = Objects.requireNonNull(createEmbeddingModel(model, params));
         this.rawNameOfModel = model;
     }
 
-    protected abstract EmbeddingModel createEmbeddingModel(String model);
+    protected abstract EmbeddingModel createEmbeddingModel(String model, String... params);
 
     @Override
     public final List<float[]> calculateEmbeddings(List<Element> elements) {

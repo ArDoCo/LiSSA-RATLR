@@ -12,7 +12,7 @@ public class OpenAiEmbeddingCreator extends CachedEmbeddingCreator {
     }
 
     @Override
-    protected EmbeddingModel createEmbeddingModel(String model) {
+    protected EmbeddingModel createEmbeddingModel(String model, String... params) {
         String openAiOrganizationId = Environment.getenv("OPENAI_ORGANIZATION_ID");
         String openAiApiKey = Environment.getenv("OPENAI_API_KEY");
         if (openAiOrganizationId == null || openAiApiKey == null) {
