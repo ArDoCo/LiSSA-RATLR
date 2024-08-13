@@ -42,7 +42,7 @@ public class CodeMethodPreprocessor extends Preprocessor {
         elements.add(artifactAsElement);
 
         var newElements = switch (language) {
-        case JAVA -> splitJava(artifactAsElement);
+            case JAVA -> splitJava(artifactAsElement);
         };
 
         elements.addAll(newElements);

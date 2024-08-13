@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class SimpleClassifier extends Classifier {
+public class SimpleClassifier extends Classifier {
 
     private static final String DEFAULT_TEMPLATE = """
             Question: Here are two parts of software development artifacts. \n
@@ -21,35 +21,32 @@ public abstract class SimpleClassifier extends Classifier {
             """;
 
     private final Cache cache;
+    private final ChatLanguageModelProvider provider;
+
     private final ChatLanguageModel llm;
     private final String template;
-    private final String model;
 
-    protected SimpleClassifier(Configuration.ModuleConfiguration configuration, String model) {
+    public SimpleClassifier(Configuration.ModuleConfiguration configuration) {
+        this.provider = new ChatLanguageModelProvider(configuration);
         this.template = configuration.argumentAsString("template", DEFAULT_TEMPLATE);
-        this.cache = CacheManager.getDefaultInstance().getCache(this.getClass().getSimpleName() + "_" + model);
-        this.model = model;
-        this.llm = createChatModel(model);
+        this.cache = CacheManager.getDefaultInstance().getCache(this.getClass().getSimpleName() + "_" + provider.modelName());
+        this.llm = provider.createChatModel();
     }
 
-    protected SimpleClassifier(Cache cache, String model, ChatLanguageModel llm, String template) {
+    private SimpleClassifier(Cache cache, ChatLanguageModelProvider provider, String template) {
         this.cache = cache;
-        this.model = model;
-        this.llm = llm;
+        this.provider = provider;
         this.template = template;
+        this.llm = provider.createChatModel();
     }
 
     @Override
     protected final Classifier copyOf() {
-        return copyOf(cache, model, createChatModel(model), template);
+        return new SimpleClassifier(cache, provider, template);
     }
 
-    protected abstract SimpleClassifier copyOf(Cache cache, String model, ChatLanguageModel llm, String template);
-
-    protected abstract ChatLanguageModel createChatModel(String model);
-
     @Override
-    protected final ClassificationResult classify(Element source, List<Element> targets) {
+    protected final List<ClassificationResult> classify(Element source, List<Element> targets) {
         List<Element> relatedTargets = new ArrayList<>();
 
         for (var target : targets) {
@@ -59,7 +56,7 @@ public abstract class SimpleClassifier extends Classifier {
                 relatedTargets.add(target);
             }
         }
-        return new ClassificationResult(source, relatedTargets);
+        return relatedTargets.stream().map(relatedTarget -> ClassificationResult.of(source, relatedTarget)).toList();
     }
 
     private String classify(Element source, Element target) {

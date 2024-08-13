@@ -21,20 +21,20 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     private static final int MAX_TOKEN_LENGTH = 8000;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedEmbeddingCreator.class);
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Cache cache;
     private final EmbeddingModel embeddingModel;
     private final String rawNameOfModel;
     private final int threads;
 
-    protected CachedEmbeddingCreator(String model, int threads) {
+    protected CachedEmbeddingCreator(String model, int threads, String... params) {
         this.cache = CacheManager.getDefaultInstance().getCache(this.getClass().getSimpleName() + "_" + Objects.requireNonNull(model));
-        this.embeddingModel = Objects.requireNonNull(createEmbeddingModel(model));
+        this.embeddingModel = Objects.requireNonNull(createEmbeddingModel(model, params));
         this.rawNameOfModel = model;
         this.threads = Math.max(1, threads);
     }
 
-    protected abstract EmbeddingModel createEmbeddingModel(String model);
+    protected abstract EmbeddingModel createEmbeddingModel(String model, String... params);
 
     @Override
     public final List<float[]> calculateEmbeddings(List<Element> elements) {

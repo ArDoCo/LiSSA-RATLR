@@ -155,10 +155,10 @@ class RecursiveSplitter {
     public static List<String> getSeparatorsForLanguage(Language language) {
         // Taken from LangChain (Python)
         return switch (language) {
-        case JAVA -> List.of("\nclass ", "\npublic ", "\nprotected ", "\nprivate ", "\nstatic ", "\nif ", "\nfor ", "\nwhile ", "\nswitch ", "\ncase ", "\n\n",
-                "\n", " ", "");
-        // Add other languages as needed...
-        default -> throw new IllegalArgumentException("Unsupported language: " + language);
+            case JAVA -> List.of("\nclass ", "\npublic ", "\nprotected ", "\nprivate ", "\nstatic ", "\nif ", "\nfor ", "\nwhile ", "\nswitch ", "\ncase ",
+                    "\n\n", "\n", " ", "");
+            // Add other languages as needed...
+            default -> throw new IllegalArgumentException("Unsupported language: " + language);
         };
     }
 

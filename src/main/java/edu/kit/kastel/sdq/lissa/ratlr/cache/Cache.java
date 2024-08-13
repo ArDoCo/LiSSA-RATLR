@@ -65,6 +65,7 @@ public class Cache {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public synchronized <T> T get(String key, Class<T> clazz) {
         try {
             var jsonData = this.data.get(key);

@@ -16,7 +16,7 @@ public class OllamaEmbeddingCreator extends CachedEmbeddingCreator {
     }
 
     @Override
-    protected EmbeddingModel createEmbeddingModel(String model) {
+    protected EmbeddingModel createEmbeddingModel(String model, String... params) {
         String host = Environment.getenvNonNull("OLLAMA_EMBEDDING_HOST");
         String user = Environment.getenv("OLLAMA_EMBEDDING_USER");
         String password = Environment.getenv("OLLAMA_EMBEDDING_PASSWORD");

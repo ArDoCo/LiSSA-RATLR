@@ -17,7 +17,7 @@ public class CodeTreePreprocessor extends Preprocessor {
     @Override
     public List<Element> preprocess(List<Artifact> artifacts) {
         return switch (language) {
-        case JAVA -> createJavaTree(artifacts);
+            case JAVA -> createJavaTree(artifacts);
         };
     }
 
