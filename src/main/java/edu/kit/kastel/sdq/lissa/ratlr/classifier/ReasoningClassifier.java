@@ -10,11 +10,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,7 +106,8 @@ public class ReasoningClassifier extends Classifier {
                 .replace("{target_content}", target.getContent());
         messages.add(new UserMessage(request));
 
-        String key = UUID.nameUUIDFromBytes(messages.toString().getBytes(StandardCharsets.UTF_8)).toString();
+        // TODO Don't rely on messages.toString() as it is not stable
+        String key = KeyGenerator.generateKey(messages.toString());
         String cachedResponse = cache.get(key, String.class);
         if (cachedResponse != null) {
             return cachedResponse;

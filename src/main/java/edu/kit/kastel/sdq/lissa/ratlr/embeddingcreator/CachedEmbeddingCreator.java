@@ -7,6 +7,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,7 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     }
 
     private static float[] calculateFinalEmbedding(EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, Element element) {
-        String key = UUID.nameUUIDFromBytes(element.getContent().getBytes()).toString();
+        String key = KeyGenerator.generateKey(element.getContent());
         float[] cachedEmbedding = cache.get(key, float[].class);
         if (cachedEmbedding != null) {
             return cachedEmbedding;

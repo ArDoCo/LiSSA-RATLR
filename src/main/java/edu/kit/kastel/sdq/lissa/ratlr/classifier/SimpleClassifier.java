@@ -5,10 +5,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class SimpleClassifier extends Classifier {
 
@@ -65,7 +65,7 @@ public class SimpleClassifier extends Classifier {
                 .replace("{target_type}", target.getType())
                 .replace("{target_content}", target.getContent());
 
-        String key = UUID.nameUUIDFromBytes(request.getBytes()).toString();
+        String key = KeyGenerator.generateKey(request);
         String cachedResponse = cache.get(key, String.class);
         if (cachedResponse != null) {
             return cachedResponse;

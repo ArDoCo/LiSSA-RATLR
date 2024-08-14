@@ -10,12 +10,12 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 import edu.kit.kastel.sdq.lissa.ratlr.postprocessor.TraceLinkIdPostprocessor;
 import edu.kit.kastel.sdq.lissa.ratlr.preprocessor.Preprocessor;
 import edu.kit.kastel.sdq.lissa.ratlr.resultaggregator.ResultAggregator;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
@@ -111,8 +111,8 @@ public class Main {
         logger.info("F1: {}", f1);
 
         // Store information to one file (config and results)
-        var resultFile = new File("results-" + configuration.traceLinkIdPostprocessor().name() + "-" + UUID.nameUUIDFromBytes(configuration.toString()
-                .getBytes(StandardCharsets.UTF_8)) + ".md");
+        var resultFile = new File("results-" + configuration.traceLinkIdPostprocessor().name() + "-" + KeyGenerator.generateKey(configuration
+                .toString()) + ".md");
         logger.info("Storing results to " + resultFile.getName());
         Files.writeString(resultFile.toPath(), "## Configuration\n```json\n" + configuration.serializeAndDestroyConfiguration() + "\n```\n\n");
         Files.writeString(resultFile.toPath(), "## Results\n", StandardOpenOption.APPEND);
@@ -125,8 +125,7 @@ public class Main {
     }
 
     private static void saveTraceLinks(Set<TraceLink> traceLinks, Configuration configuration) throws IOException {
-        var fileName = "traceLinks-" + configuration.traceLinkIdPostprocessor().name() + "-" + UUID.nameUUIDFromBytes(configuration.toString()
-                .getBytes(StandardCharsets.UTF_8)) + ".csv";
+        var fileName = "traceLinks-" + configuration.traceLinkIdPostprocessor().name() + "-" + KeyGenerator.generateKey(configuration.toString()) + ".csv";
         logger.info("Storing trace links to {}", fileName);
 
         List<TraceLink> orderedTraceLinks = new ArrayList<>(traceLinks);
