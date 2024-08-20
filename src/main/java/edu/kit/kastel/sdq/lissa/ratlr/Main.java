@@ -95,7 +95,7 @@ public class Main {
                 .collect(Collectors.toSet());
 
         ClassificationMetricsCalculator cmc = ClassificationMetricsCalculator.getInstance();
-        var classification = cmc.calculateMetrics(traceLinks, validTraceLinks, tl -> tl.sourceId() + "-" + tl.targetId(), null);
+        var classification = cmc.calculateMetrics(traceLinks, validTraceLinks, null);
         classification.prettyPrint();
 
         // Store information to one file (config and results)
@@ -104,9 +104,9 @@ public class Main {
         logger.info("Storing results to {}", resultFile.getName());
         Files.writeString(resultFile.toPath(), "## Configuration\n```json\n" + configuration.serializeAndDestroyConfiguration() + "\n```\n\n");
         Files.writeString(resultFile.toPath(), "## Results\n", StandardOpenOption.APPEND);
-        Files.writeString(resultFile.toPath(), "* True Positives: " + classification.getTp() + "\n", StandardOpenOption.APPEND);
-        Files.writeString(resultFile.toPath(), "* False Positives: " + classification.getFp() + "\n", StandardOpenOption.APPEND);
-        Files.writeString(resultFile.toPath(), "* False Negatives: " + classification.getFn() + "\n", StandardOpenOption.APPEND);
+        Files.writeString(resultFile.toPath(), "* True Positives: " + classification.getTp().size() + "\n", StandardOpenOption.APPEND);
+        Files.writeString(resultFile.toPath(), "* False Positives: " + classification.getFp().size() + "\n", StandardOpenOption.APPEND);
+        Files.writeString(resultFile.toPath(), "* False Negatives: " + classification.getFn().size() + "\n", StandardOpenOption.APPEND);
         Files.writeString(resultFile.toPath(), "* Precision: " + classification.getPrecision() + "\n", StandardOpenOption.APPEND);
         Files.writeString(resultFile.toPath(), "* Recall: " + classification.getRecall() + "\n", StandardOpenOption.APPEND);
         Files.writeString(resultFile.toPath(), "* F1: " + classification.getF1() + "\n", StandardOpenOption.APPEND);
