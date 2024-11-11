@@ -20,6 +20,7 @@ public class ChatLanguageModelProvider {
     private final String platform;
     private String model;
     private int seed;
+    private double temperature = 0.0;
 
     public ChatLanguageModelProvider(Configuration.ModuleConfiguration configuration) {
         String[] modeXplatform = configuration.name().split(Classifier.CONFIG_NAME_SEPARATOR, 2);
@@ -30,11 +31,16 @@ public class ChatLanguageModelProvider {
         this.platform = modeXplatform[1];
         initModelPlatform(configuration);
     }
+    
+    public ChatLanguageModelProvider(Configuration.ModuleConfiguration configuration, double temperature) {
+        this(configuration);
+        this.temperature = temperature;
+    }
 
     public ChatLanguageModel createChatModel() {
         return switch (platform) {
-            case OPENAI -> createOpenAiChatModel(model, seed);
-            case OLLAMA -> createOllamaChatModel(model, seed);
+            case OPENAI -> createOpenAiChatModel(model, seed, temperature);
+            case OLLAMA -> createOllamaChatModel(model, seed, temperature);
             default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
     }
@@ -60,7 +66,7 @@ public class ChatLanguageModelProvider {
         return platform.equals(OPENAI);
     }
 
-    private static OllamaChatModel createOllamaChatModel(String model, int seed) {
+    private static OllamaChatModel createOllamaChatModel(String model, int seed, double temperature) {
         String host = Environment.getenv("OLLAMA_HOST");
         String user = Environment.getenv("OLLAMA_USER");
         String password = Environment.getenv("OLLAMA_PASSWORD");
@@ -69,7 +75,7 @@ public class ChatLanguageModelProvider {
                 .baseUrl(host)
                 .modelName(model)
                 .timeout(Duration.ofMinutes(15))
-                .temperature(0.0)
+                .temperature(temperature)
                 .seed(seed);
         if (user != null && password != null && !user.isEmpty() && !password.isEmpty()) {
             ollama.customHeaders(Map.of("Authorization", Credentials.basic(user, password)));
@@ -77,7 +83,7 @@ public class ChatLanguageModelProvider {
         return ollama.build();
     }
 
-    private static OpenAiChatModel createOpenAiChatModel(String model, int seed) {
+    private static OpenAiChatModel createOpenAiChatModel(String model, int seed, double temperature) {
         String openAiOrganizationId = Environment.getenv("OPENAI_ORGANIZATION_ID");
         String openAiApiKey = Environment.getenv("OPENAI_API_KEY");
         if (openAiOrganizationId == null || openAiApiKey == null) {
@@ -87,7 +93,7 @@ public class ChatLanguageModelProvider {
                 .modelName(model)
                 .organizationId(openAiOrganizationId)
                 .apiKey(openAiApiKey)
-                .temperature(0.0)
+                .temperature(temperature)
                 .seed(seed)
                 .build();
     }

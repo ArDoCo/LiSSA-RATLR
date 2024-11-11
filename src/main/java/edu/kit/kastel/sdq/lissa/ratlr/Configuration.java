@@ -131,6 +131,14 @@ public record Configuration(
             return Integer.parseInt(argumentAsString(key, String.valueOf(defaultValue)));
         }
 
+        public double argumentAsDouble(String key) {
+            return Double.parseDouble(argumentAsString(key));
+        }
+
+        public double argumentAsDouble(String key, double defaultValue) {
+            return Double.parseDouble(argumentAsString(key, String.valueOf(defaultValue)));
+        }
+
         public boolean argumentAsBoolean(String key) {
             return Boolean.parseBoolean(argumentAsString(key));
         }

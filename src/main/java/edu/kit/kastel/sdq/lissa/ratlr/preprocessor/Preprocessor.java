@@ -17,6 +17,7 @@ public abstract class Preprocessor {
     public static Preprocessor createPreprocessor(Configuration.ModuleConfiguration configuration) {
         return switch (configuration.name()) {
             case "sentence" -> new SentencePreprocessor(configuration);
+            case "sentencesummary_openai" -> new SentenceSummaryPreprocessor(configuration);
             case "code_chunking" -> new CodeChunkingPreprocessor(configuration);
             case "code_method" -> new CodeMethodPreprocessor(configuration);
             case "code_tree" -> new CodeTreePreprocessor(configuration);
