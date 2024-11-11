@@ -102,7 +102,7 @@ public class SentenceSummaryPreprocessor extends Preprocessor {
         SentenceSummary summary = new ObjectMapper().readValue(summariyJson, SentenceSummary.class);
         for (int i = 0; i < summary.getSentences().size(); i++) {
             elements.add(new Element(
-                    artifact.getIdentifier() + SEPARATOR + sentenceId + SEPARATOR + i, artifact.getType(), summary.getSentences().get(i), 2, null, true));
+                    artifact.getIdentifier() + SEPARATOR + sentenceId + SEPARATOR + i, artifact.getType(), summary.getSentences().get(i), 2, sentenceAsElement, true));
         }
         return elements;
     }
