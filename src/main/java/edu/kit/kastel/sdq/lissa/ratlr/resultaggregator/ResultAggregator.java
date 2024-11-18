@@ -17,6 +17,7 @@ public abstract class ResultAggregator {
     public static ResultAggregator createResultAggregator(Configuration.ModuleConfiguration configuration) {
         return switch (configuration.name()) {
             case "any_connection" -> new AnyResultAggregator(configuration);
+            case "majority" -> new MajorityResultAggregator(configuration);
             default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
         };
     }

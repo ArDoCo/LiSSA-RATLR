@@ -58,4 +58,23 @@ public final class Element extends Knowledge {
     public boolean isCompare() {
         return compare;
     }
+
+    public boolean isTransitiveChildOf(Element parent) {
+        Element currentElement = this;
+        while (currentElement != null) {
+            if (parent == currentElement) {
+                return true;
+            }
+            currentElement = currentElement.getParent();
+        }
+        return false;
+    }
+
+    public Element getTopParent() {
+        Element currentElement = this;
+        while (currentElement.getParent() != null) {
+            currentElement = currentElement.getParent();
+        }
+        return currentElement;
+    }
 }
