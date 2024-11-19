@@ -4,9 +4,9 @@ import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
-import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -16,11 +16,16 @@ import java.util.Set;
 
 public class MajorityResultAggregator extends GranularityAggregator {
 
+    private static final Logger log = LoggerFactory.getLogger(MajorityResultAggregator.class);
     private final double threshold;
+    private final int baseSourceGranularity;
+    private final int baseTargetGranularity;
 
     protected MajorityResultAggregator(Configuration.ModuleConfiguration configuration) {
         super(configuration);
         this.threshold = configuration.argumentAsDouble("threshold", 0.5);
+        this.baseSourceGranularity = configuration.argumentAsInt("base_source_granularity", 0);
+        this.baseTargetGranularity = configuration.argumentAsInt("base_target_granularity", 0);
     }
 
     @Override
@@ -29,47 +34,33 @@ public class MajorityResultAggregator extends GranularityAggregator {
             List<Element> targetElements,
             List<ClassificationResult> classificationResults) {
 
-        Map<Pair<String, String>, SourceTargetRegistration> registeredElementsByTopIdentifier
-                = registerResults(sourceElements, targetElements, classificationResults);
+        Map<Element, List<Element>> sourcesByTarget = new HashMap<>();
+        Map<Element, List<Element>> targetsBySource = new HashMap<>();
+        Map<Element, Map<Element, List<Element>>> actualSourcesBySourceBaseByTargetBase = new HashMap<>();
+        for (ClassificationResult result : classificationResults) {
+            Element sourceBase = buildListOfValidElements(result.source(), baseSourceGranularity, sourceElements).getFirst();
+            Element targetBase = buildListOfValidElements(result.target(), baseTargetGranularity, targetElements).getFirst();
+            actualSourcesBySourceBaseByTargetBase.putIfAbsent(targetBase, new HashMap<>());
+            actualSourcesBySourceBaseByTargetBase.get(targetBase).putIfAbsent(sourceBase, new LinkedList<>());
+            actualSourcesBySourceBaseByTargetBase.get(targetBase).get(sourceBase).add(result.source());
 
+            sourcesByTarget.putIfAbsent(result.target(), new LinkedList<>());
+            sourcesByTarget.get(result.target()).add(result.source());
+            
+            targetsBySource.putIfAbsent(result.source(), new LinkedList<>());
+            targetsBySource.get(result.source()).add(result.target());
+        }
         Set<TraceLink> traceLinks = new LinkedHashSet<>();
-        registeredElementsByTopIdentifier.forEach((key, value) -> {
-            int maxLinks = value.source().sameGranularityElements.size() + value.target().sameGranularityElements.size();
-            int actualLinks = value.source().registeredElements.size() + value.target().registeredElements.size();
-            if ((double) actualLinks / maxLinks > threshold) {
-                traceLinks.add(new TraceLink(value.source().sameGranularityElements.getFirst().getParent().getIdentifier()
-                        , value.target().sameGranularityElements.getFirst().getIdentifier()));
+        for (Map.Entry<Element, Map<Element, List<Element>>> targetEntry : actualSourcesBySourceBaseByTargetBase.entrySet()) {
+            for (Map.Entry<Element, List<Element>> sourceEntry : targetEntry.getValue().entrySet()) {
+                int maxLinks = sameSourceElements(sourceEntry.getKey(), sourceElements).size();
+                int actualLinks = sourceEntry.getValue().size();
+                log.info("{} of {} for source {} and target {}", actualLinks, maxLinks, sourceEntry.getKey().getIdentifier(), targetEntry.getKey().getIdentifier());
+                if ((double) actualLinks / maxLinks > threshold) {
+                    traceLinks.add(new TraceLink(sourceEntry.getKey().getIdentifier(), targetEntry.getKey().getIdentifier()));
+                }
             }
-        });
+        }
         return traceLinks;
-    }
-
-    private Map<Pair<String, String>, SourceTargetRegistration> registerResults(List<Element> sourceElements, List<Element> targetElements, List<ClassificationResult> classificationResults) {
-        Map<Pair<String, String>, SourceTargetRegistration> registeredElementsByTopIdentifier = new HashMap<>();
-        for (var result : classificationResults) {
-            String topSource = result.source().getTopParent().getIdentifier();
-            String topTarget = result.target().getTopParent().getIdentifier();
-            Pair<String, String> key = new Pair<>(topSource, topTarget);
-
-            registeredElementsByTopIdentifier.computeIfAbsent(key
-                    , ignored -> new SourceTargetRegistration(new ElementRegistration(sameSourceElements(result.source(), sourceElements))
-                            , new ElementRegistration(sameTargetElements(result.target(), targetElements))));
-            registeredElementsByTopIdentifier.get(key).source().registeredElements.add(result.source());
-            registeredElementsByTopIdentifier.get(key).target().registeredElements.add(result.target());
-        }
-        return registeredElementsByTopIdentifier;
-    }
-
-    private static final class ElementRegistration {
-        private final List<Element> sameGranularityElements;
-        private final List<Element> registeredElements;
-
-        public ElementRegistration(List<Element> sameGranularityElements) {
-            this.sameGranularityElements = Collections.unmodifiableList(sameGranularityElements);
-            this.registeredElements = new LinkedList<>();
-        }
-    }
-
-    private record SourceTargetRegistration(ElementRegistration source, ElementRegistration target) {
     }
 }

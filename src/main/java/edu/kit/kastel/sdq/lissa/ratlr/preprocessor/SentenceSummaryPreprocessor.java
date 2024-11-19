@@ -1,5 +1,11 @@
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,14 +19,9 @@ import edu.kit.kastel.sdq.lissa.ratlr.classifier.ChatLanguageModelProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SentenceSummaryPreprocessor extends Preprocessor {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String DEFAULT_TEMPLATE =
             """
@@ -38,7 +39,8 @@ public class SentenceSummaryPreprocessor extends Preprocessor {
     private final int count;
 
     public SentenceSummaryPreprocessor(Configuration.ModuleConfiguration configuration) {
-        ChatLanguageModelProvider provider = new ChatLanguageModelProvider(configuration, configuration.argumentAsDouble("temperature", 0.0));
+        ChatLanguageModelProvider provider =
+                new ChatLanguageModelProvider(configuration, configuration.argumentAsDouble("temperature", 0.0));
         this.template = configuration.argumentAsString("template", DEFAULT_TEMPLATE);
         this.cache = CacheManager.getDefaultInstance()
                 .getCache(this.getClass().getSimpleName() + "_" + provider.modelName());
@@ -47,8 +49,8 @@ public class SentenceSummaryPreprocessor extends Preprocessor {
     }
 
     private String summarize(Element base) {
-        String request = template.replace("{count}", String.valueOf(count))
-                .replace("{source_content}", base.getContent());
+        String request =
+                template.replace("{count}", String.valueOf(count)).replace("{source_content}", base.getContent());
 
         String key = KeyGenerator.generateKey(request);
         String cachedResponse = cache.get(key, String.class);
@@ -58,7 +60,6 @@ public class SentenceSummaryPreprocessor extends Preprocessor {
             logger.info("Summarizing: {}", base.getIdentifier());
             String response = llm.generate(request);
             cache.put(key, response);
-            System.out.println(response);
             return response;
         }
     }
@@ -92,23 +93,34 @@ public class SentenceSummaryPreprocessor extends Preprocessor {
         }
         return elements;
     }
-    
-    private List<Element> preprocessSentence(String sentence, Artifact artifact, int sentenceId, Element parent) throws JsonProcessingException {
+
+    private List<Element> preprocessSentence(String sentence, Artifact artifact, int sentenceId, Element parent)
+            throws JsonProcessingException {
         List<Element> elements = new ArrayList<>();
         Element sentenceAsElement = new Element(
-                artifact.getIdentifier() + SEPARATOR + sentenceId, artifact.getType(), sentence, 1, parent, true);
+                artifact.getIdentifier() + SEPARATOR + sentenceId, artifact.getType(), sentence, 1, parent, false);
         elements.add(sentenceAsElement);
-        String summariyJson = summarize(sentenceAsElement).replace("```json", "").replace("```", "");
+        elements.add(new Element(artifact.getIdentifier() + SEPARATOR + sentenceId + SEPARATOR + 0, artifact.getType(), sentence, 2, sentenceAsElement, true));
+        String summariyJson =
+                summarize(sentenceAsElement).replace("```json", "").replace("```", "");
         SentenceSummary summary = new ObjectMapper().readValue(summariyJson, SentenceSummary.class);
+        if (summary.getSentences().size() != count) {
+            logger.warn("Expected {} sentences, but found {} for: {}", count, summary.getSentences().size(), sentenceAsElement.getIdentifier());
+        }
         for (int i = 0; i < summary.getSentences().size(); i++) {
             elements.add(new Element(
-                    artifact.getIdentifier() + SEPARATOR + sentenceId + SEPARATOR + i, artifact.getType(), summary.getSentences().get(i), 2, sentenceAsElement, true));
+                    artifact.getIdentifier() + SEPARATOR + sentenceId + SEPARATOR + (i + 1),
+                    artifact.getType(),
+                    summary.getSentences().get(i),
+                    2,
+                    sentenceAsElement,
+                    true));
         }
         return elements;
     }
-    
+
     private static final class SentenceSummary {
-        
+
         @JsonProperty("similar_sentences")
         private final List<String> sentences;
 
@@ -116,7 +128,7 @@ public class SentenceSummaryPreprocessor extends Preprocessor {
         private SentenceSummary(@JsonProperty("similar_sentences") List<String> sentences) {
             this.sentences = sentences;
         }
-        
+
         public List<String> getSentences() {
             return sentences;
         }

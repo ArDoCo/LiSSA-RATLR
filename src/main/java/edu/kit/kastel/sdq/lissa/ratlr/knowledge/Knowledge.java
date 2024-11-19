@@ -42,4 +42,9 @@ public abstract sealed class Knowledge permits Artifact, Element {
     public final String getType() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return getIdentifier();
+    }
 }
