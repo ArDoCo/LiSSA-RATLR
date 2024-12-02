@@ -5,6 +5,7 @@ import java.util.List;
 import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.preprocessor.reformulate.Reformulation;
 
 /**
  * A preprocessor extracts elements based on the given artifacts.
@@ -16,8 +17,8 @@ public abstract class Preprocessor {
 
     public static Preprocessor createPreprocessor(Configuration.ModuleConfiguration configuration) {
         return switch (configuration.name()) {
-            case "sentence" -> new SentencePreprocessor(configuration);
-            case "sentencesummary_openai" -> new SentenceSummaryPreprocessor(configuration);
+            case "sentence" -> new SentencePreprocessor();
+            case "reformulation_openai" -> Reformulation.createPreprocessor(configuration);
             case "code_chunking" -> new CodeChunkingPreprocessor(configuration);
             case "code_method" -> new CodeMethodPreprocessor(configuration);
             case "code_tree" -> new CodeTreePreprocessor(configuration);

@@ -134,6 +134,7 @@ public class ReasoningClassifier extends Classifier {
         }
     }
 
+    //TODO prompt alternatives
     private enum Prompt {
         REASON_WITH_NAME(
                 "Below are two artifacts from the same software system. Is there a traceability link between (1) and (2)? Give your reasoning and then answer with 'yes' or 'no' enclosed in <trace> </trace>.\n (1) {source_type}: '''{source_content}''' \n (2) {target_type}: '''{target_content}''' "),
