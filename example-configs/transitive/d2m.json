@@ -1,0 +1,61 @@
+
+{
+  "cache_dir": "./cache-d2m",
+
+  "source_artifact_provider" : {
+    "name" : "text",
+    "args" : {
+      "artifact_type" : "software architecture documentation",
+      "path" : "./datasets/doc2code/mediastore/text_2016/mediastore.txt"
+    }
+  },
+
+  "target_artifact_provider" : {
+    "name" : "text",
+    "args" : {
+      "artifact_type" : "software architecture model",
+      "path" : "./datasets/doc2code/mediastore/model_2016/uml/ms.uml"
+    }
+  },
+
+  "source_preprocessor" : {
+    "name" : "sentence",
+    "args" : {}
+  },
+  "target_preprocessor" : {
+    "name" : "model_uml",
+    "args" : {}
+  },
+  "embedding_creator" : {
+    "name" : "openai",
+    "args" : {
+      "model": "text-embedding-3-large"
+    }
+  },
+  "source_store" : {
+    "name" : "custom",
+    "args" : { }
+  },
+  "target_store" : {
+    "name" : "custom",
+    "args" : {
+      "max_results" : "2"
+    }
+  },
+  "classifier" : {
+    "name" : "reasoning_openai",
+    "args" : {
+    }
+  },
+  "result_aggregator" : {
+    "name" : "any_connection",
+    "args" : {
+      "source_granularity": "1",
+      "target_granularity": "1"
+    }
+  },
+  "tracelinkid_postprocessor" : {
+    "name" : "sad2sam",
+    "args" : {}
+  }
+}

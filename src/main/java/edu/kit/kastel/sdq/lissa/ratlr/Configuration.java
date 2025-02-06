@@ -1,7 +1,7 @@
 package edu.kit.kastel.sdq.lissa.ratlr;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
@@ -33,7 +34,7 @@ public record Configuration(
         @JsonProperty("tracelinkid_postprocessor") ModuleConfiguration traceLinkIdPostprocessor)
         implements ConfigurationBuilder.With {
 
-    public String serializeAndDestroyConfiguration() throws IOException {
+    public String serializeAndDestroyConfiguration() throws UncheckedIOException {
         sourceArtifactProvider.finalizeForSerialization();
         targetArtifactProvider.finalizeForSerialization();
         sourcePreprocessor.finalizeForSerialization();
@@ -46,10 +47,14 @@ public record Configuration(
         if (traceLinkIdPostprocessor != null) {
             traceLinkIdPostprocessor.finalizeForSerialization();
         }
-        return new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .writeValueAsString(this);
+        try {
+            return new ObjectMapper()
+                    .enable(SerializationFeature.INDENT_OUTPUT)
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                    .writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

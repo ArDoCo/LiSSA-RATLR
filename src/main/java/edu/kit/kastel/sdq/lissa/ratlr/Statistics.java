@@ -2,6 +2,7 @@ package edu.kit.kastel.sdq.lissa.ratlr;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
-final class Statistics {
+public final class Statistics {
     private static final Logger logger = LoggerFactory.getLogger(Statistics.class);
 
     private Statistics() {
@@ -30,15 +31,31 @@ final class Statistics {
             int sourceArtifacts,
             int targetArtifacts)
             throws IOException {
-        if (configuration.goldStandardConfiguration() == null
-                || configuration.goldStandardConfiguration().path() == null) {
+        generateStatistics(
+                configuration.getConfigurationIdentifierForFile(configFile),
+                configuration.serializeAndDestroyConfiguration(),
+                traceLinks,
+                configuration.goldStandardConfiguration(),
+                sourceArtifacts,
+                targetArtifacts);
+    }
+
+    public static void generateStatistics(
+            String configurationIdentifier,
+            String configurationSummary,
+            Set<TraceLink> traceLinks,
+            Configuration.GoldStandardConfiguration goldStandardConfiguration,
+            int sourceArtifacts,
+            int targetArtifacts)
+            throws IOException {
+        if (goldStandardConfiguration == null || goldStandardConfiguration.path() == null) {
             logger.info(
                     "Skipping statistics generation since no path to ground truth has been provided as first command line argument");
             return;
         }
 
-        File groundTruth = new File(configuration.goldStandardConfiguration().path());
-        boolean header = configuration.goldStandardConfiguration().hasHeader();
+        File groundTruth = new File(goldStandardConfiguration.path());
+        boolean header = goldStandardConfiguration.hasHeader();
         logger.info("Skipping header: {}", header);
         Set<TraceLink> validTraceLinks = Files.readAllLines(groundTruth.toPath()).stream()
                 .skip(header ? 1 : 0)
@@ -51,11 +68,9 @@ final class Statistics {
         classification.prettyPrint();
 
         // Store information to one file (config and results)
-        var resultFile = new File("results-" + configuration.getConfigurationIdentifierForFile(configFile) + ".md");
+        var resultFile = new File("results-" + configurationIdentifier + ".md");
         logger.info("Storing results to {}", resultFile.getName());
-        Files.writeString(
-                resultFile.toPath(),
-                "## Configuration\n```json\n" + configuration.serializeAndDestroyConfiguration() + "\n```\n\n");
+        Files.writeString(resultFile.toPath(), "## Configuration\n```json\n" + configurationSummary + "\n```\n\n");
         Files.writeString(resultFile.toPath(), "## Stats\n", StandardOpenOption.APPEND);
         Files.writeString(
                 resultFile.toPath(),
@@ -88,7 +103,11 @@ final class Statistics {
     public static void saveTraceLinks(Set<TraceLink> traceLinks, File configFile, Configuration configuration)
             throws IOException {
         var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFile) + ".csv";
-        logger.info("Storing trace links to {}", fileName);
+        saveTraceLinks(traceLinks, fileName);
+    }
+
+    public static void saveTraceLinks(Set<TraceLink> traceLinks, String destination) throws UncheckedIOException {
+        logger.info("Storing trace links to {}", destination);
 
         List<TraceLink> orderedTraceLinks = new ArrayList<>(traceLinks);
         orderedTraceLinks.sort(Comparator.comparing(TraceLink::sourceId).thenComparing(TraceLink::targetId));
@@ -96,6 +115,10 @@ final class Statistics {
         String csvResult = orderedTraceLinks.stream()
                 .map(it -> it.sourceId() + "," + it.targetId())
                 .collect(Collectors.joining("\n"));
-        Files.writeString(new File(fileName).toPath(), csvResult, StandardOpenOption.CREATE);
+        try {
+            Files.writeString(new File(destination).toPath(), csvResult, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

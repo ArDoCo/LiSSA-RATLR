@@ -18,7 +18,8 @@ public class TraceLinkIdPostprocessor {
         this.idProcessor = null;
     }
 
-    public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(Configuration.ModuleConfiguration moduleConfiguration) {
+    public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(
+            Configuration.ModuleConfiguration moduleConfiguration) {
         return switch (moduleConfiguration.name()) {
             case "req2code" -> new TraceLinkIdPostprocessor(IdProcessor.REQ2CODE);
             case "sad2code" -> new TraceLinkIdPostprocessor(IdProcessor.SAD2CODE);
@@ -43,7 +44,9 @@ public class TraceLinkIdPostprocessor {
     }
 
     private enum IdProcessor {
-        REQ2CODE(sourceId -> sourceId.substring(0, sourceId.indexOf(".")), targetId -> targetId.substring(0, targetId.indexOf("."))),
+        REQ2CODE(
+                sourceId -> sourceId.substring(0, sourceId.indexOf(".")),
+                targetId -> targetId.substring(0, targetId.indexOf("."))),
         SAD2CODE(TraceLinkIdPostprocessor::processSAD, targetId -> targetId),
         SAM2SAD(TraceLinkIdPostprocessor::processSAM, TraceLinkIdPostprocessor::processSAD),
         SAD2SAM(TraceLinkIdPostprocessor::processSAD, TraceLinkIdPostprocessor::processSAM),
@@ -58,7 +61,8 @@ public class TraceLinkIdPostprocessor {
         }
 
         public TraceLink process(TraceLink traceLink) {
-            return new TraceLink(sourceIdProcessor.apply(traceLink.sourceId()), targetIdProcessor.apply(traceLink.targetId()));
+            return new TraceLink(
+                    sourceIdProcessor.apply(traceLink.sourceId()), targetIdProcessor.apply(traceLink.targetId()));
         }
     }
 
