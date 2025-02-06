@@ -1,4 +1,4 @@
-package edu.kit.kastel.sdq.lissa.ratlr;
+package edu.kit.kastel.sdq.lissa.ratlr.utils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

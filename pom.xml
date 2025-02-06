@@ -159,7 +159,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.kit.kastel.sdq.lissa.ratlr.MainCLI</mainClass>
+                            <mainClass>edu.kit.kastel.sdq.lissa.cli.MainCLI</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

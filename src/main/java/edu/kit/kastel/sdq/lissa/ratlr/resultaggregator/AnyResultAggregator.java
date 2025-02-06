@@ -4,8 +4,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
@@ -13,7 +13,7 @@ public class AnyResultAggregator extends ResultAggregator {
     private final int sourceGranularity;
     private final int targetGranularity;
 
-    public AnyResultAggregator(Configuration.ModuleConfiguration configuration) {
+    public AnyResultAggregator(ModuleConfiguration configuration) {
         this.sourceGranularity = configuration.argumentAsInt("source_granularity", 0);
         this.targetGranularity = configuration.argumentAsInt("target_granularity", 0);
     }

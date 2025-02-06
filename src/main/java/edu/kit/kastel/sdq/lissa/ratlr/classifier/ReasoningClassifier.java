@@ -11,9 +11,9 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
@@ -26,7 +26,7 @@ public class ReasoningClassifier extends Classifier {
     private final boolean useOriginalArtifacts;
     private final boolean useSystemMessage;
 
-    public ReasoningClassifier(Configuration.ModuleConfiguration configuration) {
+    public ReasoningClassifier(ModuleConfiguration configuration) {
         super(ChatLanguageModelProvider.supportsThreads(configuration) ? DEFAULT_THREAD_COUNT : 1);
         this.provider = new ChatLanguageModelProvider(configuration);
         this.cache = CacheManager.getDefaultInstance()

@@ -7,8 +7,8 @@ import java.util.Objects;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
-import edu.kit.kastel.sdq.lissa.ratlr.Environment;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Environment;
 import okhttp3.Credentials;
 
 public class ChatLanguageModelProvider {
@@ -21,7 +21,7 @@ public class ChatLanguageModelProvider {
     private String model;
     private int seed;
 
-    public ChatLanguageModelProvider(Configuration.ModuleConfiguration configuration) {
+    public ChatLanguageModelProvider(ModuleConfiguration configuration) {
         String[] modeXplatform = configuration.name().split(Classifier.CONFIG_NAME_SEPARATOR, 2);
         if (modeXplatform.length == 1) {
             this.platform = null;
@@ -39,7 +39,7 @@ public class ChatLanguageModelProvider {
         };
     }
 
-    private void initModelPlatform(Configuration.ModuleConfiguration configuration) {
+    private void initModelPlatform(ModuleConfiguration configuration) {
         this.model = switch (platform) {
             case OPENAI -> configuration.argumentAsString("model", "gpt-4o-mini");
             case OLLAMA -> configuration.argumentAsString("model", "llama3:8b");
@@ -52,7 +52,7 @@ public class ChatLanguageModelProvider {
         return Objects.requireNonNull(model, "Model not initialized");
     }
 
-    public static boolean supportsThreads(Configuration.ModuleConfiguration configuration) {
+    public static boolean supportsThreads(ModuleConfiguration configuration) {
         return configuration.name().contains(OPENAI);
     }
 

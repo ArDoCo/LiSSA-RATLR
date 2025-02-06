@@ -1,4 +1,4 @@
-package edu.kit.kastel.sdq.lissa.ratlr.command;
+package edu.kit.kastel.sdq.lissa.cli.command;
 
 import static edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager.DEFAULT_CACHE_DIRECTORY;
 
@@ -37,33 +37,35 @@ public class MergeCommand implements Runnable {
 
     @Override
     public void run() {
-        Arrays.stream(this.sourcePaths).map(Path::of).forEach(sourcePath -> {
+        for (String sourcePath : this.sourcePaths) {
+            Path path = Path.of(sourcePath);
             try {
-                if (Files.isDirectory(sourcePath)) {
+                if (Files.isDirectory(path)) {
                     // source path is a directory, cache manager of it will be used on all files inside
-                    CacheManager sourceManager = new CacheManager(sourcePath);
-                    try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(sourcePath)) {
+                    CacheManager sourceManager = new CacheManager(path);
+                    try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(path)) {
                         dirStream.forEach(dirEntry -> merge(sourceManager, dirEntry));
                     }
                 } else {
                     // source path is a file, cache manager of parent directory is used on that file
-                    merge(CacheManagerConverter.getCacheManager(sourcePath.getParent()), sourcePath);
+                    merge(CacheManagerConverter.getCacheManager(path.getParent()), path);
                 }
             } catch (IOException e) {
-                logger.warn("Source path '%s' caused an exception while accessing the path: %s"
-                        .formatted(sourcePath, e.getMessage()));
+                logger.warn("Source path '{}' caused an exception while accessing the path: {}", path, e.getMessage());
             }
-        });
+        }
     }
 
     private void merge(CacheManager sourceManager, Path... sourcePaths) {
-        Arrays.stream(sourcePaths).filter(path -> !Files.isDirectory(path)).forEach(path -> {
-            try {
-                merge(sourceManager.getCache(path, false), targetManager.getCache(path, true));
-            } catch (IllegalArgumentException e) {
-                logger.warn("Source path '%s' caused an exception while merging: %s".formatted(path, e.getMessage()));
+        for (Path path : sourcePaths) {
+            if (!Files.isDirectory(path)) {
+                try {
+                    merge(sourceManager.getCache(path, false), targetManager.getCache(path, true));
+                } catch (IllegalArgumentException e) {
+                    logger.warn("Source path '{}' caused an exception while merging: {}", path, e.getMessage());
+                }
             }
-        });
+        }
     }
 
     private void merge(Cache source, Cache target) {

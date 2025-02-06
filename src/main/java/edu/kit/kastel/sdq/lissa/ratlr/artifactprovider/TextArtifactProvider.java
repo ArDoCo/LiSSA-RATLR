@@ -3,13 +3,14 @@ package edu.kit.kastel.sdq.lissa.ratlr.artifactprovider;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Knowledge;
 
@@ -29,7 +30,7 @@ public class TextArtifactProvider extends ArtifactProvider {
     protected final Artifact.ArtifactType artifactType;
     protected final List<Artifact> artifacts;
 
-    public TextArtifactProvider(Configuration.ModuleConfiguration configuration) {
+    public TextArtifactProvider(ModuleConfiguration configuration) {
         this.path = new File(configuration.argumentAsString("path"));
         if (!path.exists()) {
             throw new IllegalArgumentException("Path does not exist: " + path.getAbsolutePath());
@@ -46,7 +47,8 @@ public class TextArtifactProvider extends ArtifactProvider {
             files.addAll(Arrays.asList(Objects.requireNonNull(this.path.listFiles())));
         }
 
-        files.stream().map(File::toPath).forEach(it -> {
+        for (File file : files) {
+            Path it = file.toPath();
             if (Files.isRegularFile(it)) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 try (BufferedReader reader = new BufferedReader(new FileReader(it.toFile()))) {
@@ -57,7 +59,7 @@ public class TextArtifactProvider extends ArtifactProvider {
                     throw new UncheckedIOException(e);
                 }
             }
-        });
+        }
     }
 
     @Override

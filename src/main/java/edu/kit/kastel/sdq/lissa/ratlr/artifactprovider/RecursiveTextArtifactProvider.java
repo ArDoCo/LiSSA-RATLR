@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 
 /**
@@ -23,7 +23,7 @@ public class RecursiveTextArtifactProvider extends TextArtifactProvider {
 
     private final String[] extensions;
 
-    public RecursiveTextArtifactProvider(Configuration.ModuleConfiguration configuration) {
+    public RecursiveTextArtifactProvider(ModuleConfiguration configuration) {
         super(configuration);
         this.extensions =
                 configuration.argumentAsString("extensions").toLowerCase().split(",");
@@ -31,8 +31,9 @@ public class RecursiveTextArtifactProvider extends TextArtifactProvider {
 
     @Override
     protected void loadFiles() {
-        try (Stream<Path> files = Files.walk(this.path.toPath())) {
-            files.forEach(file -> {
+
+        try (Stream<Path> fileStream = Files.walk(this.path.toPath())) {
+            for (Path file : fileStream.toList()) {
                 if (Files.isRegularFile(file) && hasCorrectExtension(file)) {
                     try (Scanner scan = new Scanner(file.toFile()).useDelimiter("\\A")) {
                         if (scan.hasNext()) {
@@ -46,7 +47,7 @@ public class RecursiveTextArtifactProvider extends TextArtifactProvider {
                         throw new UncheckedIOException(e);
                     }
                 }
-            });
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

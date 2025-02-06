@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
@@ -30,7 +30,7 @@ public class SimpleClassifier extends Classifier {
     private final ChatLanguageModel llm;
     private final String template;
 
-    public SimpleClassifier(Configuration.ModuleConfiguration configuration) {
+    public SimpleClassifier(ModuleConfiguration configuration) {
         super(ChatLanguageModelProvider.supportsThreads(configuration) ? DEFAULT_THREAD_COUNT : 1);
         this.provider = new ChatLanguageModelProvider(configuration);
         this.template = configuration.argumentAsString("template", DEFAULT_TEMPLATE);

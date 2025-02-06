@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.GoldStandardConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
 public final class Statistics {
@@ -30,9 +33,9 @@ public final class Statistics {
             Configuration configuration,
             int sourceArtifacts,
             int targetArtifacts)
-            throws IOException {
+            throws UncheckedIOException {
         generateStatistics(
-                configuration.getConfigurationIdentifierForFile(configFile),
+                configuration.getConfigurationIdentifierForFile(configFile.getName()),
                 configuration.serializeAndDestroyConfiguration(),
                 traceLinks,
                 configuration.goldStandardConfiguration(),
@@ -44,24 +47,18 @@ public final class Statistics {
             String configurationIdentifier,
             String configurationSummary,
             Set<TraceLink> traceLinks,
-            Configuration.GoldStandardConfiguration goldStandardConfiguration,
+            GoldStandardConfiguration goldStandardConfiguration,
             int sourceArtifacts,
             int targetArtifacts)
-            throws IOException {
+            throws UncheckedIOException {
+
         if (goldStandardConfiguration == null || goldStandardConfiguration.path() == null) {
             logger.info(
                     "Skipping statistics generation since no path to ground truth has been provided as first command line argument");
             return;
         }
 
-        File groundTruth = new File(goldStandardConfiguration.path());
-        boolean header = goldStandardConfiguration.hasHeader();
-        logger.info("Skipping header: {}", header);
-        Set<TraceLink> validTraceLinks = Files.readAllLines(groundTruth.toPath()).stream()
-                .skip(header ? 1 : 0)
-                .map(l -> l.split(","))
-                .map(it -> new TraceLink(it[0], it[1]))
-                .collect(Collectors.toSet());
+        Set<TraceLink> validTraceLinks = getTraceLinksFromGoldStandard(goldStandardConfiguration);
 
         ClassificationMetricsCalculator cmc = ClassificationMetricsCalculator.getInstance();
         var classification = cmc.calculateMetrics(traceLinks, validTraceLinks, null);
@@ -69,40 +66,57 @@ public final class Statistics {
 
         // Store information to one file (config and results)
         var resultFile = new File("results-" + configurationIdentifier + ".md");
+        StringBuilder result = new StringBuilder();
+        result.append("## Configuration\n```json\n")
+                .append(configurationSummary)
+                .append("\n```\n\n");
+        result.append("## Stats\n");
+        result.append("* # TraceLinks (GS): ").append(validTraceLinks.size()).append("\n");
+        result.append("* # Source Artifacts: ").append(sourceArtifacts).append("\n");
+        result.append("* # Target Artifacts: ").append(targetArtifacts).append("\n");
+        result.append("## Results\n");
+        result.append("* True Positives: ")
+                .append(classification.getTruePositives().size())
+                .append("\n");
+        result.append("* False Positives: ")
+                .append(classification.getFalsePositives().size())
+                .append("\n");
+        result.append("* False Negatives: ")
+                .append(classification.getFalseNegatives().size())
+                .append("\n");
+        result.append("* Precision: ").append(classification.getPrecision()).append("\n");
+        result.append("* Recall: ").append(classification.getRecall()).append("\n");
+        result.append("* F1: ").append(classification.getF1()).append("\n");
+
         logger.info("Storing results to {}", resultFile.getName());
-        Files.writeString(resultFile.toPath(), "## Configuration\n```json\n" + configurationSummary + "\n```\n\n");
-        Files.writeString(resultFile.toPath(), "## Stats\n", StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(),
-                "* # TraceLinks (GS): " + validTraceLinks.size() + "\n",
-                StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(), "* # Source Artifacts: " + sourceArtifacts + "\n", StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(), "* # Target Artifacts: " + targetArtifacts + "\n", StandardOpenOption.APPEND);
-        Files.writeString(resultFile.toPath(), "## Results\n", StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(),
-                "* True Positives: " + classification.getTruePositives().size() + "\n",
-                StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(),
-                "* False Positives: " + classification.getFalsePositives().size() + "\n",
-                StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(),
-                "* False Negatives: " + classification.getFalseNegatives().size() + "\n",
-                StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(), "* Precision: " + classification.getPrecision() + "\n", StandardOpenOption.APPEND);
-        Files.writeString(
-                resultFile.toPath(), "* Recall: " + classification.getRecall() + "\n", StandardOpenOption.APPEND);
-        Files.writeString(resultFile.toPath(), "* F1: " + classification.getF1() + "\n", StandardOpenOption.APPEND);
+        try {
+            Files.writeString(resultFile.toPath(), result.toString(), StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @NotNull
+    private static Set<TraceLink> getTraceLinksFromGoldStandard(GoldStandardConfiguration goldStandardConfiguration) {
+        File groundTruth = new File(goldStandardConfiguration.path());
+        boolean header = goldStandardConfiguration.hasHeader();
+        logger.info("Skipping header: {}", header);
+        Set<TraceLink> validTraceLinks;
+        try {
+            validTraceLinks = Files.readAllLines(groundTruth.toPath()).stream()
+                    .skip(header ? 1 : 0)
+                    .map(l -> l.split(","))
+                    .map(it -> new TraceLink(it[0], it[1]))
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return validTraceLinks;
     }
 
     public static void saveTraceLinks(Set<TraceLink> traceLinks, File configFile, Configuration configuration)
-            throws IOException {
-        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFile) + ".csv";
+            throws UncheckedIOException {
+        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFile.getName()) + ".csv";
         saveTraceLinks(traceLinks, fileName);
     }
 

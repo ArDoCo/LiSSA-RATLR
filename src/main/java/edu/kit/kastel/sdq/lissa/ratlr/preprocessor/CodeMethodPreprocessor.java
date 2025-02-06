@@ -11,7 +11,7 @@ import org.treesitter.TSParser;
 import org.treesitter.TSTree;
 import org.treesitter.TreeSitterJava;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
@@ -26,7 +26,7 @@ public class CodeMethodPreprocessor extends Preprocessor {
 
     private final Language language;
 
-    public CodeMethodPreprocessor(Configuration.ModuleConfiguration configuration) {
+    public CodeMethodPreprocessor(ModuleConfiguration configuration) {
         this.language = Objects.requireNonNull(Language.valueOf(configuration.argumentAsString("language")));
     }
 

@@ -2,7 +2,7 @@ package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import java.util.List;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
@@ -14,7 +14,7 @@ public abstract class Preprocessor {
 
     public abstract List<Element> preprocess(List<Artifact> artifacts);
 
-    public static Preprocessor createPreprocessor(Configuration.ModuleConfiguration configuration) {
+    public static Preprocessor createPreprocessor(ModuleConfiguration configuration) {
         return switch (configuration.name()) {
             case "sentence" -> new SentencePreprocessor(configuration);
             case "code_chunking" -> new CodeChunkingPreprocessor(configuration);

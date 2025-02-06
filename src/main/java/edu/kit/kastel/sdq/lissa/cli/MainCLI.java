@@ -1,10 +1,10 @@
-package edu.kit.kastel.sdq.lissa.ratlr;
+package edu.kit.kastel.sdq.lissa.cli;
 
 import java.nio.file.Path;
 
-import edu.kit.kastel.sdq.lissa.ratlr.command.EvaluateCommand;
-import edu.kit.kastel.sdq.lissa.ratlr.command.MergeCommand;
-import edu.kit.kastel.sdq.lissa.ratlr.command.TransitiveTraceCommand;
+import edu.kit.kastel.sdq.lissa.cli.command.EvaluateCommand;
+import edu.kit.kastel.sdq.lissa.cli.command.MergeCommand;
+import edu.kit.kastel.sdq.lissa.cli.command.TransitiveTraceCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(subcommands = {MergeCommand.class, EvaluateCommand.class, TransitiveTraceCommand.class})

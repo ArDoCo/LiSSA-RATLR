@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.langchain4j.data.document.splitter.DocumentBySentenceSplitter;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
@@ -12,7 +12,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
  * This preprocessor splits a text into sentences.
  */
 public class SentencePreprocessor extends Preprocessor {
-    public SentencePreprocessor(Configuration.ModuleConfiguration configuration) {}
+    public SentencePreprocessor(ModuleConfiguration configuration) {}
 
     @Override
     public List<Element> preprocess(List<Artifact> artifacts) {

@@ -4,7 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
 public class TraceLinkIdPostprocessor {
@@ -18,8 +18,7 @@ public class TraceLinkIdPostprocessor {
         this.idProcessor = null;
     }
 
-    public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(
-            Configuration.ModuleConfiguration moduleConfiguration) {
+    public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(ModuleConfiguration moduleConfiguration) {
         return switch (moduleConfiguration.name()) {
             case "req2code" -> new TraceLinkIdPostprocessor(IdProcessor.REQ2CODE);
             case "sad2code" -> new TraceLinkIdPostprocessor(IdProcessor.SAD2CODE);
