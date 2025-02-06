@@ -47,4 +47,5 @@ build/
 /evaluation
 /evaluation*
 /trace*.csv
+/transitive-trace*.csv
 /config.json
