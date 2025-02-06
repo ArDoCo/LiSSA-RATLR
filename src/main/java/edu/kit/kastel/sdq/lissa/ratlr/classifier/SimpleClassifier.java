@@ -58,6 +58,14 @@ public class SimpleClassifier extends Classifier {
 
         for (var target : targets) {
             String llmResponse = classify(source, target);
+
+            if (llmResponse.startsWith("<think>") && llmResponse.contains("</think>")) {
+                // Omit the thinking of models like deepseek-r1
+                llmResponse = llmResponse
+                        .substring(llmResponse.indexOf("</think>") + "</think>".length())
+                        .strip();
+            }
+
             boolean isRelated = llmResponse.toLowerCase().contains("yes");
             if (isRelated) {
                 relatedTargets.add(target);
