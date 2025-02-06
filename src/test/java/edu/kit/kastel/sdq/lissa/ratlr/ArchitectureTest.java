@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;

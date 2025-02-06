@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.cli.command;
 
 import static edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager.DEFAULT_CACHE_DIRECTORY;
