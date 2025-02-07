@@ -1,8 +1,9 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.postprocessor;
 
-import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
-
 import java.util.function.Function;
+
+import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
 enum IdProcessor {
     REQ2CODE(

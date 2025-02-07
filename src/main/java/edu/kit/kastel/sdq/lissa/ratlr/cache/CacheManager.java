@@ -12,17 +12,10 @@ public final class CacheManager {
 
     private static CacheManager defaultInstanceManager;
     private final Path directoryOfCaches;
-    private final Map<String, Cache> caches = new HashMap<>();
+    private final Map<String, RedisCache> caches = new HashMap<>();
 
     public static synchronized void setCacheDir(String directory) throws IOException {
-        if (defaultInstanceManager != null) {
-            defaultInstanceManager.shutdown();
-        }
         defaultInstanceManager = new CacheManager(Path.of(directory == null ? DEFAULT_CACHE_DIRECTORY : directory));
-    }
-
-    private void shutdown() {
-        caches.values().forEach(Cache::write);
     }
 
     /**
@@ -34,7 +27,7 @@ public final class CacheManager {
      * @throws IllegalArgumentException if the default cache directory is provided or cacheDir is not a directory
      */
     public CacheManager(Path cacheDir) throws IOException {
-        if (!Files.exists(cacheDir)) Files.createDirectory(cacheDir);
+        if (!Files.exists(cacheDir)) Files.createDirectories(cacheDir);
         if (!Files.isDirectory(cacheDir)) {
             throw new IllegalArgumentException("path is not a directory: " + cacheDir);
         }
@@ -63,7 +56,8 @@ public final class CacheManager {
             return caches.get(name);
         }
 
-        Cache cache = new Cache(directoryOfCaches + "/" + name + (appendEnding ? ".json" : ""));
+        LocalCache localCache = new LocalCache(directoryOfCaches + "/" + name + (appendEnding ? ".json" : ""));
+        RedisCache cache = new RedisCache(localCache);
         caches.put(name, cache);
         return cache;
     }
