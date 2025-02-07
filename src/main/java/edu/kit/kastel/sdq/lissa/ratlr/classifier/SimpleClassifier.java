@@ -6,6 +6,7 @@ import java.util.List;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
@@ -84,13 +85,14 @@ public class SimpleClassifier extends Classifier {
                 .replace("{target_content}", target.getContent());
 
         String key = KeyGenerator.generateKey(request);
-        String cachedResponse = cache.get(key, String.class);
+        CacheKey cacheKey = new CacheKey(null, provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request, key);
+        String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
             return cachedResponse;
         } else {
             logger.info("Classifying: {} and {}", source.getIdentifier(), target.getIdentifier());
             String response = llm.generate(request);
-            cache.put(key, response);
+            cache.put(cacheKey, response);
             return response;
         }
     }

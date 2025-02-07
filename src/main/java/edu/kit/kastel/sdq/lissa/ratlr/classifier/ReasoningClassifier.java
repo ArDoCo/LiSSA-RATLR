@@ -13,6 +13,7 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
@@ -123,14 +124,17 @@ public class ReasoningClassifier extends Classifier {
 
         // TODO Don't rely on messages.toString() as it is not stable
         String key = KeyGenerator.generateKey(messages.toString());
-        String cachedResponse = cache.get(key, String.class);
+        CacheKey cacheKey =
+                new CacheKey(null, provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString(), key);
+
+        String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
             return cachedResponse;
         } else {
             logger.info("Classifying: {} and {}", source.getIdentifier(), target.getIdentifier());
             Response<AiMessage> response = llm.generate(messages);
             String responseText = response.content().text();
-            cache.put(key, responseText);
+            cache.put(cacheKey, responseText);
             return responseText;
         }
     }

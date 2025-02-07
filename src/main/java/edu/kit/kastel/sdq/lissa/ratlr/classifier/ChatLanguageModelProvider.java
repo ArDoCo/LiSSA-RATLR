@@ -53,6 +53,10 @@ public class ChatLanguageModelProvider {
         return Objects.requireNonNull(model, "Model not initialized");
     }
 
+    public int seed() {
+        return seed;
+    }
+
     public static boolean supportsThreads(ModuleConfiguration configuration) {
         return configuration.name().contains(OPENAI);
     }

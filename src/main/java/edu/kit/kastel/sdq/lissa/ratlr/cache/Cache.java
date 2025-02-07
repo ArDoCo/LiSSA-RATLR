@@ -13,18 +13,45 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import redis.clients.jedis.UnifiedJedis;
 
 public class Cache {
     private static final Logger logger = LoggerFactory.getLogger(Cache.class);
-    private static final int MAX_DIRTY = 50;
-    private final File file;
     private final ObjectMapper mapper;
-    private Map<String, String> data = new HashMap<>();
+
+    private static final int MAX_DIRTY = 50;
     private int dirty = 0;
+
+    private final File file;
+    private Map<String, String> data = new HashMap<>();
+
+    // REDIS Connection (Optional)
+    private UnifiedJedis jedis;
 
     Cache(String cacheFile) {
         file = new File(cacheFile);
         mapper = new ObjectMapper();
+
+        createRedisConnection();
+        createLocalStore();
+    }
+
+    private void createRedisConnection() {
+        try {
+            String redisUrl = "redis://localhost:6379";
+            if (System.getenv("REDIS_URL") != null) {
+                redisUrl = System.getenv("REDIS_URL");
+            }
+            jedis = new UnifiedJedis(redisUrl);
+            // Check if connection is working
+            jedis.ping();
+        } catch (Exception e) {
+            logger.warn("Could not connect to Redis, using file cache instead");
+            jedis = null;
+        }
+    }
+
+    private void createLocalStore() {
         if (file.exists()) {
             try {
                 data = mapper.readValue(file, new TypeReference<>() {});
@@ -32,15 +59,12 @@ public class Cache {
                 throw new IllegalArgumentException("Could not read cache file (" + file.getName() + ")", e);
             }
         }
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (dirty > 0) {
                 write();
             }
         }));
-    }
-
-    public File getFile() {
-        return file;
     }
 
     public synchronized void write() {
@@ -55,8 +79,37 @@ public class Cache {
         }
     }
 
-    public synchronized void put(String key, String value) {
-        String old = data.put(key, value);
+    @SuppressWarnings("unchecked")
+    public synchronized <T> T get(CacheKey key, Class<T> clazz) {
+
+        var jsonData = jedis == null ? null : jedis.get(key.toRawKey());
+
+        if (jsonData == null) {
+            jsonData = data.get(key.localKey());
+            if (jedis != null && jsonData != null) {
+                jedis.set(key.toRawKey(), jsonData);
+            }
+        }
+        if (jsonData == null) {
+            return null;
+        }
+        if (clazz == String.class) {
+            return (T) jsonData;
+        }
+
+        try {
+            return mapper.readValue(jsonData, clazz);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Could not deserialize object", e);
+        }
+    }
+
+    public synchronized void put(CacheKey key, String value) {
+        if (jedis != null) {
+            jedis.set(key.toRawKey(), value);
+        }
+
+        String old = data.put(key.localKey(), value);
         if (old == null || !old.equals(value)) {
             dirty++;
         }
@@ -66,25 +119,7 @@ public class Cache {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public synchronized <T> T get(String key, Class<T> clazz) {
-        try {
-            var jsonData = this.data.get(key);
-            if (jsonData == null) {
-                return null;
-            }
-
-            if (clazz == String.class) {
-                return (T) jsonData;
-            }
-
-            return mapper.readValue(jsonData, clazz);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not deserialize object", e);
-        }
-    }
-
-    public synchronized <T> void put(String key, T value) {
+    public synchronized <T> void put(CacheKey key, T value) {
         try {
             put(key, mapper.writeValueAsString(Objects.requireNonNull(value)));
         } catch (JsonProcessingException e) {

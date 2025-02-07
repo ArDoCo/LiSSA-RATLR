@@ -81,8 +81,8 @@ for dataset, postprocessor, retrieval_count in zip(datasets, postprocessors, ret
     for classifier_mode in classifier_modes:
         for gpt_model, gpt_arg in zip(gpt_models, gpt_args):
             with open(f"./configs/req2req/{dataset}_{classifier_mode}_gpt_{gpt_model}.json", "w") as f:
-                f.write(TEMPLATE.replace("<<DATASET>>", dataset).replace("<<CLASSIFIER_MODE>>", classifier_mode+"_openai").replace("<<ARGS>>", gpt_arg).replace("<<POSTPROCESSOR>>", postprocessor).replace("RETRIEVAL_COUNT", retrieval_count))
+                f.write(TEMPLATE.replace("<<DATASET>>", dataset).replace("<<CLASSIFIER_MODE>>", classifier_mode+"_openai").replace("<<ARGS>>", gpt_arg).replace("<<POSTPROCESSOR>>", postprocessor).replace("<<RETRIEVAL_COUNT>>", retrieval_count))
 
         for ollama_model, ollama_arg in zip(ollama_models, ollama_args):
             with open(f"./configs/req2req/{dataset}_{classifier_mode}_ollama_{ollama_model.replace(":", "_")}.json", "w") as f:
-                f.write(TEMPLATE.replace("<<DATASET>>", dataset).replace("<<CLASSIFIER_MODE>>", classifier_mode+"_ollama").replace("<<ARGS>>", ollama_arg).replace("<<POSTPROCESSOR>>", postprocessor).replace("RETRIEVAL_COUNT", retrieval_count))
+                f.write(TEMPLATE.replace("<<DATASET>>", dataset).replace("<<CLASSIFIER_MODE>>", classifier_mode+"_ollama").replace("<<ARGS>>", ollama_arg).replace("<<POSTPROCESSOR>>", postprocessor).replace("<<RETRIEVAL_COUNT>>", retrieval_count))
