@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record CacheKey(String project, String model, int seed, Mode mode, String content, @JsonIgnore String localKey) {
+public record CacheKey(String model, int seed, Mode mode, String content, @JsonIgnore String localKey) {
     public enum Mode {
         EMBEDDING,
         CHAT

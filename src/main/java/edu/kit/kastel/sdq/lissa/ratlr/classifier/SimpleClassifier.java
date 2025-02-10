@@ -85,7 +85,7 @@ public class SimpleClassifier extends Classifier {
                 .replace("{target_content}", target.getContent());
 
         String key = KeyGenerator.generateKey(request);
-        CacheKey cacheKey = new CacheKey(null, provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request, key);
+        CacheKey cacheKey = new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request, key);
         String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
             return cachedResponse;

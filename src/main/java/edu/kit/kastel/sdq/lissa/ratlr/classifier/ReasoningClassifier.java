@@ -125,7 +125,7 @@ public class ReasoningClassifier extends Classifier {
         // TODO Don't rely on messages.toString() as it is not stable
         String key = KeyGenerator.generateKey(messages.toString());
         CacheKey cacheKey =
-                new CacheKey(null, provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString(), key);
+                new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString(), key);
 
         String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
