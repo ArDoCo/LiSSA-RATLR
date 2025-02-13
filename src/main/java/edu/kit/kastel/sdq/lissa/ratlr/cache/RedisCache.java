@@ -75,7 +75,7 @@ class RedisCache implements Cache {
     public synchronized void put(CacheKey key, String value) {
         if (jedis != null) {
             String rawKey = key.toRawKey();
-            jedis.hset(rawKey,"data", value);
+            jedis.hset(rawKey, "data", value);
             jedis.hset(rawKey, "timestamp", String.valueOf(Instant.now().getEpochSecond()));
         }
         if (localCache != null) {

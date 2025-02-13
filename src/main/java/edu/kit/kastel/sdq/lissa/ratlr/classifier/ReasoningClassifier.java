@@ -131,7 +131,11 @@ public class ReasoningClassifier extends Classifier {
         if (cachedResponse != null) {
             return cachedResponse;
         } else {
-            logger.info("Classifying: {} and {}", source.getIdentifier(), target.getIdentifier());
+            logger.info(
+                    "Classifying ({}): {} and {}",
+                    provider.modelName(),
+                    source.getIdentifier(),
+                    target.getIdentifier());
             Response<AiMessage> response = llm.generate(messages);
             String responseText = response.content().text();
             cache.put(cacheKey, responseText);

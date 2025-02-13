@@ -90,7 +90,11 @@ public class SimpleClassifier extends Classifier {
         if (cachedResponse != null) {
             return cachedResponse;
         } else {
-            logger.info("Classifying: {} and {}", source.getIdentifier(), target.getIdentifier());
+            logger.info(
+                    "Classifying ({}): {} and {}",
+                    provider.modelName(),
+                    source.getIdentifier(),
+                    target.getIdentifier());
             String response = llm.generate(request);
             cache.put(cacheKey, response);
             return response;

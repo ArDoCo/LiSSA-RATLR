@@ -15,6 +15,7 @@ import okhttp3.Credentials;
 public class ChatLanguageModelProvider {
     public static final String OPENAI = "openai";
     public static final String OLLAMA = "ollama";
+    public static final String BLABLADOR = "blablador";
 
     public static final int DEFAULT_SEED = 133742243;
 
@@ -36,6 +37,7 @@ public class ChatLanguageModelProvider {
         return switch (platform) {
             case OPENAI -> createOpenAiChatModel(model, seed);
             case OLLAMA -> createOllamaChatModel(model, seed);
+            case BLABLADOR -> createBlabladorChatModel(model, seed);
             default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
     }
@@ -44,6 +46,7 @@ public class ChatLanguageModelProvider {
         this.model = switch (platform) {
             case OPENAI -> configuration.argumentAsString("model", "gpt-4o-mini");
             case OLLAMA -> configuration.argumentAsString("model", "llama3:8b");
+            case BLABLADOR -> configuration.argumentAsString("model", "2 - Llama 3.3 70B instruct");
             default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
         this.seed = configuration.argumentAsInt("seed", DEFAULT_SEED);
@@ -92,6 +95,20 @@ public class ChatLanguageModelProvider {
                 .modelName(model)
                 .organizationId(openAiOrganizationId)
                 .apiKey(openAiApiKey)
+                .temperature(0.0)
+                .seed(seed)
+                .build();
+    }
+
+    private static OpenAiChatModel createBlabladorChatModel(String model, int seed) {
+        String blabladorApiKey = Environment.getenv("BLABLADOR_API_KEY");
+        if (blabladorApiKey == null) {
+            throw new IllegalStateException("BLABLADOR_API_KEY environment variable not set");
+        }
+        return new OpenAiChatModel.OpenAiChatModelBuilder()
+                .baseUrl("https://api.helmholtz-blablador.fz-juelich.de/v1")
+                .modelName(model)
+                .apiKey(blabladorApiKey)
                 .temperature(0.0)
                 .seed(seed)
                 .build();

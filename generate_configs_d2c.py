@@ -206,16 +206,16 @@ TEMPLATE_TS = """
 
 
 # Configurations
-seeds = ["133742243", "35418170", "83939039", "-102959883", "-294857830"]
+seeds = ["133742243"]
 
 import os
 
 for seed in seeds:
-    os.makedirs(f"./configs/doc2code-significance", exist_ok=True)
+    os.makedirs(f"./configs/doc2code", exist_ok=True)
     # Generate
-    with open(f"./configs/doc2code-significance/bigbluebutton_{seed}.json", "w") as f:
+    with open(f"./configs/doc2code/bigbluebutton_{seed}.json", "w") as f:
         f.write(TEMPLATE_BBB.replace("<<SEED>>", seed))
-    with open(f"./configs/doc2code-significance/mediastore_{seed}.json", "w") as f:
+    with open(f"./configs/doc2code/mediastore_{seed}.json", "w") as f:
         f.write(TEMPLATE_MS.replace("<<SEED>>", seed))
-    with open(f"./configs/doc2code-significance/teastore_{seed}.json", "w") as f:
+    with open(f"./configs/doc2code/teastore_{seed}.json", "w") as f:
         f.write(TEMPLATE_TS.replace("<<SEED>>", seed))
