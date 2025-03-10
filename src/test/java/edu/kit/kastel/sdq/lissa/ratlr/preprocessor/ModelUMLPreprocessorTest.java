@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,7 +12,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 
 class ModelUMLPreprocessorTest {
@@ -20,8 +21,7 @@ class ModelUMLPreprocessorTest {
         File model = new File("src/test/resources/mediastore.uml");
         Assertions.assertTrue(model.exists());
 
-        ModelUMLPreprocessor preprocessor =
-                new ModelUMLPreprocessor(new Configuration.ModuleConfiguration("dummy", Map.of()));
+        ModelUMLPreprocessor preprocessor = new ModelUMLPreprocessor(new ModuleConfiguration("dummy", Map.of()));
         var elements = preprocessor.preprocess(
                 List.of(new Artifact("mediastore.uml", "uml", Files.readString(model.toPath()))));
         assertEquals(24, elements.size());

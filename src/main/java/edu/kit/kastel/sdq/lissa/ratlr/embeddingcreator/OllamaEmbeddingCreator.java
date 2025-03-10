@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator;
 
 import java.time.Duration;
@@ -5,13 +6,13 @@ import java.util.Map;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
-import edu.kit.kastel.sdq.lissa.ratlr.Environment;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Environment;
 import okhttp3.Credentials;
 
 public class OllamaEmbeddingCreator extends CachedEmbeddingCreator {
 
-    public OllamaEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
+    public OllamaEmbeddingCreator(ModuleConfiguration configuration) {
         super(configuration.argumentAsString("model", "nomic-embed-text:v1.5"), 1);
     }
 

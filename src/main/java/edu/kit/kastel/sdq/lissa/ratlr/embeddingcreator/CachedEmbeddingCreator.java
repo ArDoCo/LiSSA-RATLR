@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator;
 
 import java.util.*;
@@ -14,6 +15,7 @@ import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
@@ -92,7 +94,9 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     private static float[] calculateFinalEmbedding(
             EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, Element element) {
         String key = KeyGenerator.generateKey(element.getContent());
-        float[] cachedEmbedding = cache.get(key, float[].class);
+        CacheKey cacheKey = new CacheKey(rawNameOfModel, -1, CacheKey.Mode.EMBEDDING, element.getContent(), key);
+
+        float[] cachedEmbedding = cache.get(cacheKey, float[].class);
         if (cachedEmbedding != null) {
             return cachedEmbedding;
         } else {
@@ -100,23 +104,30 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
             try {
                 float[] embedding =
                         embeddingModel.embed(element.getContent()).content().vector();
-                cache.put(key, embedding);
+                cache.put(cacheKey, embedding);
                 return embedding;
             } catch (Exception e) {
                 STATIC_LOGGER.error(
                         "Error while calculating embedding for .. try to fix ..: {}", element.getIdentifier());
                 // Probably the length was too long .. check that
-                return tryToFixWithLength(embeddingModel, cache, rawNameOfModel, key, element.getContent());
+                return tryToFixWithLength(embeddingModel, cache, rawNameOfModel, cacheKey, element.getContent());
             }
         }
     }
 
     private static float[] tryToFixWithLength(
-            EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, String key, String content) {
-        String newKey = key + "_fixed_" + MAX_TOKEN_LENGTH;
-        float[] cachedEmbedding = cache.get(newKey, float[].class);
+            EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, CacheKey key, String content) {
+        String newKey = key.localKey() + "_fixed_" + MAX_TOKEN_LENGTH;
+        CacheKey newCacheKey = new CacheKey(
+                rawNameOfModel,
+                -1,
+                CacheKey.Mode.EMBEDDING,
+                "(FIXED::%d): %s".formatted(MAX_TOKEN_LENGTH, content),
+                newKey);
+
+        float[] cachedEmbedding = cache.get(newCacheKey, float[].class);
         if (cachedEmbedding != null) {
-            STATIC_LOGGER.info("using fixed embedding for: {}", key);
+            STATIC_LOGGER.info("using fixed embedding for: {}", key.localKey());
             return cachedEmbedding;
         }
         EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
@@ -143,8 +154,8 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
         }
         String fixedContent = content.substring(0, left);
         float[] embedding = embeddingModel.embed(fixedContent).content().vector();
-        STATIC_LOGGER.info("using fixed embedding for: {}", key);
-        cache.put(newKey, embedding);
+        STATIC_LOGGER.info("using fixed embedding for: {}", key.localKey());
+        cache.put(newCacheKey, embedding);
         return embedding;
     }
 }

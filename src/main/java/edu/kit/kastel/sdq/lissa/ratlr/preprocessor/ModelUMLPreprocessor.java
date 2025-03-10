@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import java.io.ByteArrayInputStream;
@@ -12,7 +13,7 @@ import edu.kit.kastel.mcse.ardoco.tlr.models.connectors.generators.architecture.
 import edu.kit.kastel.mcse.ardoco.tlr.models.connectors.generators.architecture.uml.parser.UmlModel;
 import edu.kit.kastel.mcse.ardoco.tlr.models.connectors.generators.architecture.uml.parser.UmlModelRoot;
 import edu.kit.kastel.mcse.ardoco.tlr.models.connectors.generators.architecture.uml.parser.xmlelements.OwnedOperation;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
@@ -30,7 +31,7 @@ public class ModelUMLPreprocessor extends Preprocessor {
     private final boolean includeOperations;
     private final boolean includeInterfaceRealizations;
 
-    public ModelUMLPreprocessor(Configuration.ModuleConfiguration configuration) {
+    public ModelUMLPreprocessor(ModuleConfiguration configuration) {
         this.includeUsages = configuration.argumentAsBoolean("includeUsages", true);
         this.includeOperations = configuration.argumentAsBoolean("includeOperations", true);
         this.includeInterfaceRealizations = configuration.argumentAsBoolean("includeInterfaceRealizations", true);

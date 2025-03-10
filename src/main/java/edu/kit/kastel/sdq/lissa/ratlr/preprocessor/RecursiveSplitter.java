@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import java.util.ArrayList;
@@ -5,10 +6,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // MIT License
 // Adapted from LangChain (Python)
 // https://github.com/langchain-ai/langchain/blob/master/libs/text-splitters/langchain_text_splitters/character.py
 class RecursiveSplitter {
+
+    private static final Logger logger = LoggerFactory.getLogger(RecursiveSplitter.class);
 
     private final int chunkSize;
     private final List<String> separators;
@@ -119,7 +125,7 @@ class RecursiveSplitter {
             int _len = d.length();
             if (total + _len + (!currentDoc.isEmpty() ? separatorLen : 0) > chunkSize) {
                 if (total > chunkSize) {
-                    System.err.println(
+                    logger.warn(
                             "Created a chunk of size " + total + " which is greater than the chunk size " + chunkSize);
                 }
                 if (!currentDoc.isEmpty()) {

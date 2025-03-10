@@ -1,16 +1,19 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
-
-import dev.langchain4j.data.document.splitter.DocumentBySentenceSplitter;
-import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
-import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import dev.langchain4j.data.document.splitter.DocumentBySentenceSplitter;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
+import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
 /**
  * This preprocessor splits a text into sentences.
  */
 public class SentencePreprocessor extends Preprocessor {
+    public SentencePreprocessor(ModuleConfiguration configuration) {}
 
     @Override
     public List<Element> preprocess(List<Artifact> artifacts) {
@@ -33,12 +36,10 @@ public class SentencePreprocessor extends Preprocessor {
 
         for (int i = 0; i < sentences.length; i++) {
             String sentence = sentences[i];
-            elements.addAll(createElements(sentence, artifact, i, artifactAsElement));
+            Element sentenceAsElement = new Element(
+                    artifact.getIdentifier() + SEPARATOR + i, artifact.getType(), sentence, 1, artifactAsElement, true);
+            elements.add(sentenceAsElement);
         }
         return elements;
-    }
-    
-    protected List<Element> createElements(String sentence, Artifact artifact, int sentenceId, Element parent) {
-        return List.of(new Element(artifact.getIdentifier() + SEPARATOR + sentenceId, artifact.getType(), sentence, 1, parent, true));
     }
 }

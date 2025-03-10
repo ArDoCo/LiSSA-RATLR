@@ -1,10 +1,11 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
@@ -22,7 +23,7 @@ public class CodeChunkingPreprocessor extends Preprocessor {
     private final List<RecursiveSplitter.Language> languages;
     private final int chunkSize;
 
-    public CodeChunkingPreprocessor(Configuration.ModuleConfiguration configuration) {
+    public CodeChunkingPreprocessor(ModuleConfiguration configuration) {
         this.languages = Arrays.stream(
                         configuration.argumentAsString("language").split(","))
                 .map(RecursiveSplitter.Language::valueOf)

@@ -1,12 +1,14 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
@@ -30,7 +32,7 @@ public class SimpleClassifier extends Classifier {
     private final ChatLanguageModel llm;
     private final String template;
 
-    public SimpleClassifier(Configuration.ModuleConfiguration configuration) {
+    public SimpleClassifier(ModuleConfiguration configuration) {
         super(ChatLanguageModelProvider.supportsThreads(configuration) ? DEFAULT_THREAD_COUNT : 1);
         this.provider = new ChatLanguageModelProvider(configuration);
         this.template = configuration.argumentAsString("template", DEFAULT_TEMPLATE);
@@ -39,8 +41,8 @@ public class SimpleClassifier extends Classifier {
         this.llm = provider.createChatModel();
     }
 
-    private SimpleClassifier(Cache cache, ChatLanguageModelProvider provider, String template) {
-        super(provider.supportsThreads() ? DEFAULT_THREAD_COUNT : 1);
+    private SimpleClassifier(int threads, Cache cache, ChatLanguageModelProvider provider, String template) {
+        super(threads);
         this.cache = cache;
         this.provider = provider;
         this.template = template;
@@ -49,7 +51,7 @@ public class SimpleClassifier extends Classifier {
 
     @Override
     protected final Classifier copyOf() {
-        return new SimpleClassifier(cache, provider, template);
+        return new SimpleClassifier(threads, cache, provider, template);
     }
 
     @Override
@@ -58,6 +60,15 @@ public class SimpleClassifier extends Classifier {
 
         for (var target : targets) {
             String llmResponse = classify(source, target);
+
+            String thinkEnd = "</think>";
+            if (llmResponse.startsWith("<think>") && llmResponse.contains(thinkEnd)) {
+                // Omit the thinking of models like deepseek-r1
+                llmResponse = llmResponse
+                        .substring(llmResponse.indexOf(thinkEnd) + thinkEnd.length())
+                        .strip();
+            }
+
             boolean isRelated = llmResponse.toLowerCase().contains("yes");
             if (isRelated) {
                 relatedTargets.add(target);
@@ -75,13 +86,18 @@ public class SimpleClassifier extends Classifier {
                 .replace("{target_content}", target.getContent());
 
         String key = KeyGenerator.generateKey(request);
-        String cachedResponse = cache.get(key, String.class);
+        CacheKey cacheKey = new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request, key);
+        String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
             return cachedResponse;
         } else {
-            logger.info("Classifying: {} and {}", source.getIdentifier(), target.getIdentifier());
+            logger.info(
+                    "Classifying ({}): {} and {}",
+                    provider.modelName(),
+                    source.getIdentifier(),
+                    target.getIdentifier());
             String response = llm.generate(request);
-            cache.put(key, response);
+            cache.put(cacheKey, response);
             return response;
         }
     }

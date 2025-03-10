@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 
 import java.util.ArrayList;
@@ -11,9 +12,10 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
@@ -26,24 +28,25 @@ public class ReasoningClassifier extends Classifier {
     private final boolean useOriginalArtifacts;
     private final boolean useSystemMessage;
 
-    public ReasoningClassifier(Configuration.ModuleConfiguration configuration) {
+    public ReasoningClassifier(ModuleConfiguration configuration) {
         super(ChatLanguageModelProvider.supportsThreads(configuration) ? DEFAULT_THREAD_COUNT : 1);
         this.provider = new ChatLanguageModelProvider(configuration);
         this.cache = CacheManager.getDefaultInstance()
                 .getCache(this.getClass().getSimpleName() + "_" + provider.modelName());
-        this.prompt = configuration.argumentAsStringByEnumIndex("prompt", 0, Prompt.values(), it -> it.prompt);
+        this.prompt = configuration.argumentAsStringByEnumIndex("prompt", 0, Prompt.values(), it -> it.promptTemplate);
         this.useOriginalArtifacts = configuration.argumentAsBoolean("use_original_artifacts", false);
         this.useSystemMessage = configuration.argumentAsBoolean("use_system_message", true);
         this.llm = this.provider.createChatModel();
     }
 
     private ReasoningClassifier(
+            int threads,
             Cache cache,
             ChatLanguageModelProvider provider,
             String prompt,
             boolean useOriginalArtifacts,
             boolean useSystemMessage) {
-        super(provider.supportsThreads() ? DEFAULT_THREAD_COUNT : 1);
+        super(threads);
         this.cache = cache;
         this.provider = provider;
         this.prompt = prompt;
@@ -54,7 +57,7 @@ public class ReasoningClassifier extends Classifier {
 
     @Override
     protected final Classifier copyOf() {
-        return new ReasoningClassifier(cache, provider, prompt, useOriginalArtifacts, useSystemMessage);
+        return new ReasoningClassifier(threads, cache, provider, prompt, useOriginalArtifacts, useSystemMessage);
     }
 
     @Override
@@ -122,14 +125,21 @@ public class ReasoningClassifier extends Classifier {
 
         // TODO Don't rely on messages.toString() as it is not stable
         String key = KeyGenerator.generateKey(messages.toString());
-        String cachedResponse = cache.get(key, String.class);
+        CacheKey cacheKey =
+                new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString(), key);
+
+        String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
             return cachedResponse;
         } else {
-            logger.info("Classifying: {} and {}", source.getIdentifier(), target.getIdentifier());
+            logger.info(
+                    "Classifying ({}): {} and {}",
+                    provider.modelName(),
+                    source.getIdentifier(),
+                    target.getIdentifier());
             Response<AiMessage> response = llm.generate(messages);
             String responseText = response.content().text();
-            cache.put(key, responseText);
+            cache.put(cacheKey, responseText);
             return responseText;
         }
     }
@@ -145,10 +155,10 @@ public class ReasoningClassifier extends Classifier {
         REASON_WITH_NAME_YES_IF_CERTAIN(
                 "Below are two artifacts from the same software system.\n Is there a traceability link between (1) and (2)? Give your reasoning and then answer with 'yes' or 'no' enclosed in <trace> </trace>. Only answer yes if you are absolutely certain.\n (1) {source_type}: '''{source_content}''' \n (2) {target_type}: '''{target_content}''' ");
 
-        private final String prompt;
+        private final String promptTemplate;
 
-        Prompt(String prompt) {
-            this.prompt = prompt;
+        Prompt(String promptTemplate) {
+            this.promptTemplate = promptTemplate;
         }
     }
 }

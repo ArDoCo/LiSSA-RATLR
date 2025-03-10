@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator;
 
 import java.io.File;
@@ -5,14 +6,14 @@ import java.io.File;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.OnnxEmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.PoolingMode;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 
 public class OnnxEmbeddingCreator extends CachedEmbeddingCreator {
     public OnnxEmbeddingCreator(String model, String pathToModel, String pathToTokenizer) {
         super(model, 1, pathToModel, pathToTokenizer);
     }
 
-    public OnnxEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
+    public OnnxEmbeddingCreator(ModuleConfiguration configuration) {
         this(
                 configuration.argumentAsString("model"),
                 configuration.argumentAsString("path_to_model"),

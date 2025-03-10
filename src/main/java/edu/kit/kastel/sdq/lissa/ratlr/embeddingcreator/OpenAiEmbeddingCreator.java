@@ -1,14 +1,15 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
-import edu.kit.kastel.sdq.lissa.ratlr.Environment;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Environment;
 
 public class OpenAiEmbeddingCreator extends CachedEmbeddingCreator {
     private static final int THREADS = 40;
 
-    public OpenAiEmbeddingCreator(Configuration.ModuleConfiguration configuration) {
+    public OpenAiEmbeddingCreator(ModuleConfiguration configuration) {
         super(configuration.argumentAsString("model", "text-embedding-ada-002"), THREADS);
     }
 

@@ -1,3 +1,4 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.contextprovider;
 
 import java.util.stream.Collectors;
@@ -7,8 +8,12 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
 
 // Currently complex contexts are not needed for the evaluation of LiSSA
-public class ContextProvider {
+public final class ContextProvider {
     private static final Pair<String, String> EMPTY_CONTEXT = new Pair<>("", "");
+
+    private ContextProvider() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Provides the content of siblings of the given element.

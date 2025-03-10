@@ -1,8 +1,9 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import java.util.*;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
@@ -18,7 +19,7 @@ public class CodeTreePreprocessor extends Preprocessor {
     private final Language language;
     private final boolean compareClasses;
 
-    public CodeTreePreprocessor(Configuration.ModuleConfiguration configuration) {
+    public CodeTreePreprocessor(ModuleConfiguration configuration) {
         this.language = Objects.requireNonNull(Language.valueOf(configuration.argumentAsString("language")));
         this.compareClasses = configuration.argumentAsBoolean("compare_classes", false);
     }

@@ -1,4 +1,5 @@
-package edu.kit.kastel.sdq.lissa.ratlr;
+/* Licensed under MIT 2025. */
+package edu.kit.kastel.sdq.lissa.ratlr.utils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

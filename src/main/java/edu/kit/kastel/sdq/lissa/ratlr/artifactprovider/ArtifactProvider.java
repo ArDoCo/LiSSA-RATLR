@@ -1,8 +1,9 @@
+/* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.artifactprovider;
 
 import java.util.List;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 
 /**
@@ -17,7 +18,7 @@ public abstract class ArtifactProvider {
 
     public abstract Artifact getArtifact(String identifier);
 
-    public static ArtifactProvider createArtifactProvider(Configuration.ModuleConfiguration configuration) {
+    public static ArtifactProvider createArtifactProvider(ModuleConfiguration configuration) {
         return switch (configuration.name()) {
             case "text" -> new TextArtifactProvider(configuration);
             case "recursive_text" -> new RecursiveTextArtifactProvider(configuration);
