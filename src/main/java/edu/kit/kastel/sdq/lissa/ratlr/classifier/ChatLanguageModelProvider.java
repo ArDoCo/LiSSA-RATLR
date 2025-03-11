@@ -33,7 +33,7 @@ public class ChatLanguageModelProvider {
         initModelPlatform(configuration);
     }
     
-    public ChatLanguageModelProvider(Configuration.ModuleConfiguration configuration, double temperature) {
+    public ChatLanguageModelProvider(ModuleConfiguration configuration, double temperature) {
         this(configuration);
         this.temperature = temperature;
     }

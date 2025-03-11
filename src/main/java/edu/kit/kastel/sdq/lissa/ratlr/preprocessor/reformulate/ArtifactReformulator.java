@@ -1,10 +1,11 @@
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor.reformulate;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ChatLanguageModelProvider;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.preprocessor.PreprocessorArgument;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public abstract class ArtifactReformulator {
     private final ChatLanguageModel llm;
     private final String template;
     private final int count;
+    private final ChatLanguageModelProvider provider;
 
     /**
      * Creates a new reformulator. The literals {@code {count}} and {@code {source_content}} are considered placeholders in the template 
@@ -37,11 +39,11 @@ public abstract class ArtifactReformulator {
      * @param configuration the configuration of this reformulator
      * @param defaultTemplate the default template to use if none is specified by the configuration
      */
-    protected ArtifactReformulator(Configuration.ModuleConfiguration configuration, String defaultTemplate) {
+    protected ArtifactReformulator(ModuleConfiguration configuration, String defaultTemplate) {
         this.count = configuration.argumentAsInt(PreprocessorArgument.COUNT.getKey(), 5);
         this.template = configuration.argumentAsString(PreprocessorArgument.TEMPLATE.getKey(), defaultTemplate)
                 .replace("{count}", String.valueOf(count));
-        ChatLanguageModelProvider provider =
+        this.provider =
                 new ChatLanguageModelProvider(configuration, configuration.argumentAsDouble(PreprocessorArgument.TEMPERATURE.getKey(), 0.0));
         this.cache = CacheManager.getDefaultInstance()
                 .getCache(ArtifactReformulator.class.getSimpleName() + "_" + provider.modelName());
@@ -58,7 +60,8 @@ public abstract class ArtifactReformulator {
         String request = template.replace("{source_content}", content);
 
         String key = KeyGenerator.generateKey(request);
-        String cachedResponse = cache.get(key, String.class);
+        CacheKey cacheKey = new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request, key);
+        String cachedResponse = cache.get(cacheKey, String.class);
         
         List<String> collected;
         if (cachedResponse != null) {
@@ -66,7 +69,7 @@ public abstract class ArtifactReformulator {
         } else {
             LOGGER.info("Reformulating: {}", identifier);
             String response = llm.generate(request);
-            cache.put(key, response);
+            cache.put(cacheKey, response);
             collected = collectResult(response);
         }
         

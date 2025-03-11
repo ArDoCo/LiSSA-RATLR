@@ -1,14 +1,13 @@
 package edu.kit.kastel.sdq.lissa.ratlr.preprocessor.reformulate;
 
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
+import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.preprocessor.SentencePreprocessor;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import edu.kit.kastel.sdq.lissa.ratlr.preprocessor.SentencePreprocessor;
-
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
-import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
-import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
 /**
  * This preprocessor splits a text into sentences and reformulates those to similar ones.
@@ -36,7 +35,7 @@ public class SentenceReformulationPreprocessor extends SentencePreprocessor {
             """.replace("{outputPrefix}", REFORMULATED_OUTPUT_PREFIX);
     private final ArtifactReformulator reformulator;
 
-    public SentenceReformulationPreprocessor(Configuration.ModuleConfiguration configuration) {
+    public SentenceReformulationPreprocessor(ModuleConfiguration configuration) {
         this.reformulator = new ArtifactReformulator(configuration, DEFAULT_TEMPLATE_LIST) {
             @Override
             protected List<String> collectResult(String response) {

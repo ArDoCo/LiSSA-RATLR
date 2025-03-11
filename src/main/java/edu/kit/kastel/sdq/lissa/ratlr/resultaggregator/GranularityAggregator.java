@@ -1,6 +1,6 @@
 package edu.kit.kastel.sdq.lissa.ratlr.resultaggregator;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
 import java.util.List;
@@ -10,7 +10,7 @@ public abstract class GranularityAggregator extends ResultAggregator {
     private final int sourceGranularity;
     private final int targetGranularity;
 
-    protected GranularityAggregator(Configuration.ModuleConfiguration configuration) {
+    protected GranularityAggregator(ModuleConfiguration configuration) {
         this.sourceGranularity = configuration.argumentAsInt("source_granularity", 0);
         this.targetGranularity = configuration.argumentAsInt("target_granularity", 0);
     }

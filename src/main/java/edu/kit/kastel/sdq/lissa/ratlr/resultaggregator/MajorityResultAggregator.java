@@ -1,7 +1,7 @@
 package edu.kit.kastel.sdq.lissa.ratlr.resultaggregator;
 
-import edu.kit.kastel.sdq.lissa.ratlr.Configuration;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ public class MajorityResultAggregator extends GranularityAggregator {
     private final int baseSourceGranularity;
     private final int baseTargetGranularity;
 
-    protected MajorityResultAggregator(Configuration.ModuleConfiguration configuration) {
+    protected MajorityResultAggregator(ModuleConfiguration configuration) {
         super(configuration);
         this.threshold = configuration.argumentAsDouble("threshold", 0.5);
         this.baseSourceGranularity = configuration.argumentAsInt("base_source_granularity", 0);
