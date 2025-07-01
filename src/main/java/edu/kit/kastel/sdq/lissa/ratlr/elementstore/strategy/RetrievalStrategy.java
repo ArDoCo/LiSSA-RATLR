@@ -19,8 +19,8 @@ public interface RetrievalStrategy {
     static RetrievalStrategy createStrategy(ModuleConfiguration configuration) {
         return switch (configuration.name()) {
             case "cosine_similarity" -> new CosineSimilarity(configuration);
-            case "mock" -> {
-                logger.warn("For backwards compatibility: Using cosine similarity as mock retrieval strategy.");
+            case "custom" -> {
+                logger.warn("For backwards compatibility: Using cosine similarity as default retrieval strategy.");
                 yield new CosineSimilarity(configuration);
             }
             default -> throw new IllegalStateException("Unknown strategy name: " + configuration.name());
