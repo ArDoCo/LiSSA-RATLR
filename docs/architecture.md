@@ -33,6 +33,10 @@ The project follows a modular architecture with the following main components:
      - All extend [`CachedEmbeddingCreator`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/embeddingcreator/CachedEmbeddingCreator.java) for caching support, improving performance by storing and reusing embeddings.
 4. **Element Stores** (`elementstore` package)
    - [`ElementStore`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/elementstore/ElementStore.java): Manages storage and retrieval of processed elements with their embeddings, supporting similarity-based search and hierarchical relationships.
+   - **Retrieval Strategies** (`elementstore/strategy` package):
+     - [`RetrievalStrategy`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/elementstore/strategy/RetrievalStrategy.java): Abstraction for finding similar elements in the target store. The retrieval strategy is configurable via the `target_store` section in the configuration file.
+     - [`CosineSimilarity`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/elementstore/strategy/CosineSimilarity.java): Default strategy that finds similar elements based on cosine similarity of embeddings. Supports the `max_results` parameter.
+     - Retrieval strategies can be extended to implement custom similarity or retrieval logic.
 5. **Classifiers** (`classifier` package)
    - [`Classifier`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/classifier/Classifier.java): Base class for classification
    - Implementations:

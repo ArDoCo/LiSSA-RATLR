@@ -1,4 +1,3 @@
-
 {
   "cache_dir": "./cache-r2c/eANCI-133742243",
 
@@ -42,7 +41,7 @@
     "args" : { }
   },
   "target_store" : {
-    "name" : "custom",
+    "name" : "cosine_similarity",
     "args" : {
       "max_results" : "40"
     }

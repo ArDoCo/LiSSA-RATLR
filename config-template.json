@@ -37,7 +37,7 @@
     "args": {}
   },
   "target_store": {
-    "name": "custom",
+    "name": "cosine_similarity",
     "args": {
       "max_results": "4"
     }
