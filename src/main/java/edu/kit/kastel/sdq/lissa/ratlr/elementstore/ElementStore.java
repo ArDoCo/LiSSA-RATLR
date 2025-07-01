@@ -69,6 +69,10 @@ public class ElementStore {
         if (similarityRetriever) {
             this.retrievalStrategy = RetrievalStrategy.createStrategy(configuration);
         } else {
+            if (!"custom".equals(configuration.name())) {
+                RetrievalStrategy.logger.error(
+                        "The element store is created in source store mode, but the retrieval strategy is not set to \"custom\". This is likely a configuration error as source stores do not use retrieval strategies.");
+            }
             this.retrievalStrategy = null;
         }
 
