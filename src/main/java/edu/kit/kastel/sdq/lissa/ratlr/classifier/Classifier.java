@@ -161,7 +161,7 @@ public abstract class Classifier {
         List<Pair<Element, Element>> tasks = new ArrayList<>();
 
         for (var source : sourceStore.getAllElements(true)) {
-            var targetCandidates = targetStore.findSimilar(source.second());
+            var targetCandidates = targetStore.findSimilar(source);
             for (Element target : targetCandidates) {
                 tasks.add(new Pair<>(source.first(), target));
             }

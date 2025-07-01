@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.elementstore.strategy.RetrievalStrategy;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
 
@@ -22,15 +23,13 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
  *     <li><b>Target Store</b> (similarityRetriever = true):
  *         <ul>
  *             <li>Used to store target elements that will be searched for similarity in LiSSA's classification phase</li>
- *             <li>Supports finding similar elements using vector similarity for LiSSA's similarity-based matching</li>
- *             <li>Limited to returning a maximum number of results (configurable)</li>
  *             <li>Cannot retrieve all elements at once</li>
  *         </ul>
  *     </li>
  *     <li><b>Source Store</b> (similarityRetriever = false):
  *         <ul>
  *             <li>Used to store source elements that will be used as queries in LiSSA's classification phase</li>
- *             <li>Does not support similarity search as it's not needed for source elements</li>
+ *             <li>Does not support similarity search as it's unnecessary for source elements</li>
  *             <li>Can retrieve all elements at once for LiSSA's batch processing</li>
  *             <li>Supports filtering elements by comparison flag for LiSSA's selective analysis</li>
  *         </ul>
@@ -38,12 +37,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
  * </ul>
  */
 public class ElementStore {
-
-    /**
-     * Special value for the maximum number of results that indicates no limit.
-     * Only applicable for target stores (similarityRetriever = true) in LiSSA's similarity search.
-     */
-    public static final String MAX_RESULTS_INFINITY_ARGUMENT = "infinity";
 
     /**
      * Maps element identifiers to their corresponding elements and embeddings.
@@ -58,11 +51,10 @@ public class ElementStore {
     private final List<Pair<Element, float[]>> elementsWithEmbedding;
 
     /**
-     * Maximum number of results to return in similarity search.
-     * -1 indicates source store mode (no similarity search).
-     * Positive values indicate target store mode with a limit on results for LiSSA's similarity matching.
+     * Strategy to find similar elements.
+     * {@code null} indicates source store mode (no similarity search).
      */
-    private final int maxResults;
+    private final RetrievalStrategy retrievalStrategy;
 
     /**
      * Creates a new element store for the LiSSA framework.
@@ -75,20 +67,9 @@ public class ElementStore {
      */
     public ElementStore(ModuleConfiguration configuration, boolean similarityRetriever) {
         if (similarityRetriever) {
-            final String maxResultsKey = "max_results";
-            boolean isInfinity = configuration.hasArgument(maxResultsKey)
-                    && configuration.argumentAsString(maxResultsKey).equalsIgnoreCase(MAX_RESULTS_INFINITY_ARGUMENT);
-
-            if (isInfinity) {
-                this.maxResults = Integer.MAX_VALUE;
-            } else {
-                this.maxResults = configuration.argumentAsInt(maxResultsKey, 10);
-                if (maxResults < 1) {
-                    throw new IllegalArgumentException("The maximum number of results must be greater than 0.");
-                }
-            }
+            this.retrievalStrategy = RetrievalStrategy.createStrategy(configuration);
         } else {
-            this.maxResults = -1;
+            this.retrievalStrategy = null;
         }
 
         elementsWithEmbedding = new ArrayList<>();
@@ -125,12 +106,12 @@ public class ElementStore {
      * Finds elements similar to the given query vector as part of LiSSA's similarity matching.
      * Only available in target store mode.
      *
-     * @param queryVector The vector to find similar elements for
+     * @param query The element and vector to find similar elements for
      * @return List of similar elements, sorted by similarity
      * @throws IllegalStateException If this is a source store (similarityRetriever = false)
      */
-    public final List<Element> findSimilar(float[] queryVector) {
-        return findSimilarWithDistances(queryVector).stream().map(Pair::first).toList();
+    public final List<Element> findSimilar(Pair<Element, float[]> query) {
+        return findSimilarWithDistances(query).stream().map(Pair::first).toList();
     }
 
     /**
@@ -138,43 +119,15 @@ public class ElementStore {
      * Used by LiSSA for similarity-based matching in the classification phase.
      * Only available in target store mode.
      *
-     * @param queryVector The vector to find similar elements for
+     * @param query The element and vector to find similar elements for
      * @return List of pairs containing similar elements and their similarity scores
      * @throws IllegalStateException If this is a source store (similarityRetriever = false)
      */
-    public List<Pair<Element, Float>> findSimilarWithDistances(float[] queryVector) {
-        if (maxResults < 0) {
+    public List<Pair<Element, Float>> findSimilarWithDistances(Pair<Element, float[]> query) {
+        if (retrievalStrategy == null) {
             throw new IllegalStateException("You should set retriever to true to activate this feature.");
         }
-        return findSimilarWithDistancesByCosineSimilarity(queryVector);
-    }
-
-    private List<Pair<Element, Float>> findSimilarWithDistancesByCosineSimilarity(float[] queryVector) {
-        var elements = getAllElementsIntern(true);
-        List<Pair<Element, Float>> similarElements = new ArrayList<>();
-        for (var element : elements) {
-            float[] elementVector = element.second();
-            float similarity = cosineSimilarity(queryVector, elementVector);
-            similarElements.add(new Pair<>(element.first(), similarity));
-        }
-        similarElements.sort((a, b) -> Float.compare(b.second(), a.second()));
-        return similarElements.subList(0, Math.min(maxResults, similarElements.size()));
-    }
-
-    private float cosineSimilarity(float[] queryVector, float[] elementVector) {
-        if (queryVector.length != elementVector.length) {
-            throw new IllegalArgumentException("The length of the query vector and the element vector must be equal.");
-        }
-
-        double dotProduct = 0.0;
-        double normA = 0.0;
-        double normB = 0.0;
-        for (int i = 0; i < queryVector.length; i++) {
-            dotProduct += queryVector[i] * elementVector[i];
-            normA += Math.pow(queryVector[i], 2);
-            normB += Math.pow(elementVector[i], 2);
-        }
-        return (float) (dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)));
+        return retrievalStrategy.findSimilarElements(query, getAllElementsIntern(true));
     }
 
     /**
@@ -219,7 +172,7 @@ public class ElementStore {
      * @throws IllegalStateException If this is a target store (similarityRetriever = true)
      */
     public List<Pair<Element, float[]>> getAllElements(boolean onlyCompare) {
-        if (maxResults > 0) {
+        if (retrievalStrategy != null) {
             throw new IllegalStateException("You should set retriever to false to activate this feature.");
         }
         return getAllElementsIntern(onlyCompare);
