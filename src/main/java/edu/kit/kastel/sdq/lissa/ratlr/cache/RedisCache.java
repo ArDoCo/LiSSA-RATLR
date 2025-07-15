@@ -98,7 +98,7 @@ class RedisCache implements Cache {
         if (jsonData == null && localCache != null) {
             jsonData = localCache.get(key);
             if (jedis != null && jsonData != null) {
-                jedis.set(key.toJsonKey(), jsonData);
+                jedis.hset(key.toJsonKey(), "data", jsonData);
             }
         }
 
