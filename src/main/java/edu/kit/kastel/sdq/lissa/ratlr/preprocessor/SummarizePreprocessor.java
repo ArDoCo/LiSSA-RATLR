@@ -3,10 +3,7 @@ package edu.kit.kastel.sdq.lissa.ratlr.preprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
@@ -16,6 +13,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Futures;
 
 import dev.langchain4j.model.chat.ChatModel;
 
@@ -129,7 +127,7 @@ public class SummarizePreprocessor extends Preprocessor {
             var summaries = executorService.invokeAll(tasks);
             for (int i = 0; i < artifacts.size(); i++) {
                 Artifact artifact = artifacts.get(i);
-                String summary = summaries.get(i).get();
+                String summary = Futures.getLogged(summaries.get(i), logger);
                 Element element = new Element(
                         artifact.getIdentifier(),
                         "Summary of '%s'".formatted(artifact.getType()),
@@ -143,8 +141,6 @@ public class SummarizePreprocessor extends Preprocessor {
             logger.error("Summarization interrupted", e);
             Thread.currentThread().interrupt();
             return elements;
-        } catch (ExecutionException e) {
-            throw new IllegalStateException(e.getMessage(), e);
         } finally {
             executorService.shutdown();
         }

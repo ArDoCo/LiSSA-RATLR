@@ -5,6 +5,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -16,6 +17,7 @@ import com.tngtech.archunit.lang.ArchRule;
 
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Environment;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Futures;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
 /**
@@ -97,4 +99,16 @@ class ArchitectureTest {
                             .equals(CacheKey.class.getName());
                 }
             });
+
+    /**
+     * Futures should be opened with a logger.
+     */
+    @ArchTest
+    static final ArchRule futuresShouldBeOpenedWithLogger = noClasses()
+            .that()
+            .doNotHaveFullyQualifiedName(Futures.class.getName())
+            .should()
+            .callMethod(Future.class, "get")
+            .orShould()
+            .callMethod(Future.class, "resultNow");
 }

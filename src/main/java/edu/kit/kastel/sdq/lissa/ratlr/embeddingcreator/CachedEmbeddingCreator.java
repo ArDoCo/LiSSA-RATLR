@@ -2,10 +2,7 @@
 package edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +16,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Futures;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
 
@@ -115,7 +113,7 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
         executor.close();
 
         return futureResults.stream()
-                .map(Future::resultNow)
+                .map(f -> Futures.getLogged(f, logger))
                 .flatMap(Collection::stream)
                 .toList();
     }
