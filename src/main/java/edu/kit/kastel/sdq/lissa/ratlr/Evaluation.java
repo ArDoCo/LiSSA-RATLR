@@ -15,6 +15,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.artifactprovider.ArtifactProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator.EmbeddingCreator;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
@@ -34,6 +35,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.resultaggregator.ResultAggregator;
  *     <li>Result aggregation and postprocessing</li>
  *     <li>Statistics generation and result storage</li>
  * </ul>
+ * <p>
+ * The pipeline uses a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore} to share context objects
+ * between components such as artifact providers, preprocessors, embedding creators, classifiers, and aggregators.
+ * </p>
  *
  * The pipeline follows these steps:
  * <ol>
@@ -81,7 +86,7 @@ public class Evaluation {
      * <ol>
      *     <li>Validates the configuration file path</li>
      *     <li>Loads and initializes the configuration</li>
-     *     <li>Sets up all required components for the pipeline</li>
+     *     <li>Sets up all required components for the pipeline, sharing a {@link ContextStore}</li>
      * </ol>
      *
      * @param configFile Path to the configuration file
@@ -114,21 +119,25 @@ public class Evaluation {
         configuration = new ObjectMapper().readValue(configFile.toFile(), Configuration.class);
         CacheManager.setCacheDir(configuration.cacheDir());
 
-        sourceArtifactProvider = ArtifactProvider.createArtifactProvider(configuration.sourceArtifactProvider());
-        targetArtifactProvider = ArtifactProvider.createArtifactProvider(configuration.targetArtifactProvider());
+        ContextStore contextStore = new ContextStore();
 
-        sourcePreprocessor = Preprocessor.createPreprocessor(configuration.sourcePreprocessor());
-        targetPreprocessor = Preprocessor.createPreprocessor(configuration.targetPreprocessor());
+        sourceArtifactProvider =
+                ArtifactProvider.createArtifactProvider(configuration.sourceArtifactProvider(), contextStore);
+        targetArtifactProvider =
+                ArtifactProvider.createArtifactProvider(configuration.targetArtifactProvider(), contextStore);
 
-        embeddingCreator = EmbeddingCreator.createEmbeddingCreator(configuration.embeddingCreator());
+        sourcePreprocessor = Preprocessor.createPreprocessor(configuration.sourcePreprocessor(), contextStore);
+        targetPreprocessor = Preprocessor.createPreprocessor(configuration.targetPreprocessor(), contextStore);
+
+        embeddingCreator = EmbeddingCreator.createEmbeddingCreator(configuration.embeddingCreator(), contextStore);
         sourceStore = new ElementStore(configuration.sourceStore(), false);
         targetStore = new ElementStore(configuration.targetStore(), true);
 
-        classifier = configuration.createClassifier();
-        aggregator = ResultAggregator.createResultAggregator(configuration.resultAggregator());
+        classifier = configuration.createClassifier(contextStore);
+        aggregator = ResultAggregator.createResultAggregator(configuration.resultAggregator(), contextStore);
 
-        traceLinkIdPostProcessor =
-                TraceLinkIdPostprocessor.createTraceLinkIdPostprocessor(configuration.traceLinkIdPostprocessor());
+        traceLinkIdPostProcessor = TraceLinkIdPostprocessor.createTraceLinkIdPostprocessor(
+                configuration.traceLinkIdPostprocessor(), contextStore);
 
         configuration.serializeAndDestroyConfiguration();
     }

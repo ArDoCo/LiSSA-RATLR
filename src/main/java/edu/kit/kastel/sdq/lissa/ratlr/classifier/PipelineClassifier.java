@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
@@ -14,6 +15,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
  * Each stage consists of one or more classifiers that vote on whether elements are related.
  * Elements must receive a majority vote from the classifiers in a stage to proceed to the next stage.
  * This approach allows for more robust classification by combining multiple classification strategies.
+ * <p>
+ * The pipeline classifier and its stages can access shared context via a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore},
+ * which is passed to each classifier during instantiation.
+ * </p>
  */
 public class PipelineClassifier extends Classifier {
     /**
@@ -24,14 +29,17 @@ public class PipelineClassifier extends Classifier {
     /**
      * Creates a new pipeline classifier from a list of configuration lists.
      * Each inner list represents a stage in the pipeline, and each configuration
-     * in a stage is used to create a classifier.
+     * in a stage is used to create a classifier. All classifiers receive the shared {@link ContextStore}.
      *
      * @param configs A list of configuration lists, where each inner list represents a stage
+     * @param contextStore The shared context store for pipeline components
      */
-    public PipelineClassifier(List<List<ModuleConfiguration>> configs) {
+    public PipelineClassifier(List<List<ModuleConfiguration>> configs, ContextStore contextStore) {
         super(1);
         this.classifiers = configs.stream()
-                .map(it -> it.stream().map(Classifier::createClassifier).toList())
+                .map(it -> it.stream()
+                        .map(config -> Classifier.createClassifier(config, contextStore))
+                        .toList())
                 .toList();
     }
 

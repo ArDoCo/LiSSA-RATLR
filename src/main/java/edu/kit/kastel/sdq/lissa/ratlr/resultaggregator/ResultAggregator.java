@@ -6,6 +6,7 @@ import java.util.Set;
 
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
@@ -17,7 +18,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
  *     <li>Combining these results based on specific rules</li>
  *     <li>Creating trace links between source and target elements</li>
  * </ul>
- *
+ * <p>
+ * Result aggregators can access shared context via a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore},
+ * which is passed to their factory method.
+ * </p>
  * The class supports various types of aggregators:
  * <ul>
  *     <li>any_connection: Creates trace links when any element in a group has a positive classification</li>
@@ -52,10 +56,12 @@ public abstract class ResultAggregator {
      * The type of aggregator is determined by the configuration name.
      *
      * @param configuration The module configuration specifying the type of aggregator
+     * @param contextStore The shared context store for pipeline components
      * @return A new result aggregator instance
      * @throws IllegalStateException if the configuration name is not recognized
      */
-    public static ResultAggregator createResultAggregator(ModuleConfiguration configuration) {
+    public static ResultAggregator createResultAggregator(
+            ModuleConfiguration configuration, ContextStore contextStore) {
         return switch (configuration.name()) {
             case "any_connection" -> new AnyResultAggregator(configuration);
             default -> throw new IllegalStateException("Unexpected value: " + configuration.name());

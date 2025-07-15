@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
@@ -19,6 +20,10 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
  * This class provides the foundation for implementing different classification strategies
  * for identifying trace links between source and target elements. It supports both
  * sequential and parallel processing of classification tasks.
+ * <p>
+ * Classifiers can access shared context via a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore},
+ * which is passed to factory methods and pipeline components.
+ * </p>
  */
 public abstract class Classifier {
     /**
@@ -174,10 +179,11 @@ public abstract class Classifier {
      * The type of classifier is determined by the first part of the configuration name.
      *
      * @param configuration The module configuration for the classifier
+     * @param contextStore The shared context store for pipeline components
      * @return A new classifier instance
      * @throws IllegalStateException If the configuration name is not recognized
      */
-    public static Classifier createClassifier(ModuleConfiguration configuration) {
+    public static Classifier createClassifier(ModuleConfiguration configuration, ContextStore contextStore) {
         return switch (configuration.name().split(CONFIG_NAME_SEPARATOR)[0]) {
             case "mock" -> new MockClassifier();
             case "simple" -> new SimpleClassifier(configuration);
@@ -191,9 +197,11 @@ public abstract class Classifier {
      * Each stage in the pipeline can have multiple configurations that are processed in sequence.
      *
      * @param configs A list of configuration lists, where each inner list represents a stage
+     * @param contextStore The shared context store for pipeline components
      * @return A new pipeline classifier instance
      */
-    public static Classifier createMultiStageClassifier(List<List<ModuleConfiguration>> configs) {
-        return new PipelineClassifier(configs);
+    public static Classifier createMultiStageClassifier(
+            List<List<ModuleConfiguration>> configs, ContextStore contextStore) {
+        return new PipelineClassifier(configs, contextStore);
     }
 }

@@ -57,3 +57,12 @@ The framework uses a hierarchical knowledge model:
 - [`Knowledge`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/knowledge/Knowledge.java): Base class for all knowledge elements, providing common functionality for identification and content management.
 - [`Artifact`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/knowledge/Artifact.java): Represents source artifacts (requirements, code, etc.) with their original content and metadata.
 - [`Element`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/knowledge/Element.java): Represents processed artifacts or parts of artifacts with parent-child relationships, enabling hierarchical organization and granular analysis.
+
+## Context Management
+
+The pipeline uses a shared context mechanism to allow components to exchange additional information or state during execution:
+
+- [`Context`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/context/Context.java): Interface for context objects that can be registered and retrieved by ID.
+- [`ContextStore`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/context/ContextStore.java): Central registry for context objects, passed to all major pipeline components (artifact providers, preprocessors, embedding creators, classifiers, aggregators, and postprocessors). This enables components to share state or configuration as needed.
+
+The `ContextStore` is instantiated at the start of the pipeline and passed to all component factory methods. Components can register and retrieve context objects by unique ID, enabling advanced scenarios such as cross-component coordination, caching, or sharing of intermediate results.

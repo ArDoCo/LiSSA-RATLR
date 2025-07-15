@@ -4,6 +4,8 @@
 
 LiSSA uses JSON configuration files to define the behavior of the traceability link recovery process. This guide provides detailed information about available configuration options.
 
+All pipeline components (artifact providers, preprocessors, embedding creators, classifiers, aggregators, and postprocessors) can access shared context via a ContextStore. This context mechanism is handled automatically by the framework and does not require explicit configuration in most cases.
+
 ## Finding Configuration Options
 
 Configuration options in LiSSA are defined in the code through several mechanisms:
@@ -64,6 +66,8 @@ Configuration options in LiSSA are defined in the code through several mechanism
 ## Embedding and Classification
 
 This section describes how to configure the embedding creation and classification steps. You must configure either a single `classifier` or a list of `classifiers` for multi-stage pipelines.
+
+All classifier and embedding creator instances receive access to the shared ContextStore, enabling advanced scenarios such as sharing intermediate results or configuration between pipeline stages.
 
 ### Single Classifier
 

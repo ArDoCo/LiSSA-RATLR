@@ -4,13 +4,17 @@ package edu.kit.kastel.sdq.lissa.ratlr.embeddingcreator;
 import java.util.List;
 
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 
 /**
  * Abstract base class for creating vector embeddings of elements in the LiSSA framework.
  * This class provides the interface for different embedding creation strategies,
  * which convert text elements into vector representations for similarity matching.
- *
+ * <p>
+ * Embedding creators can access shared context via a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore},
+ * which is passed to their factory method.
+ * </p>
  * The framework supports multiple embedding creation backends:
  * <ul>
  *     <li>Ollama: Local embedding generation using Ollama models
@@ -78,10 +82,12 @@ public abstract class EmbeddingCreator {
      * The type of creator is determined by the configuration's name field.
      *
      * @param configuration The configuration specifying which embedding creator to use
+     * @param contextStore The shared context store for pipeline components
      * @return An instance of the appropriate embedding creator
      * @throws IllegalStateException If the configuration specifies an unknown creator type
      */
-    public static EmbeddingCreator createEmbeddingCreator(ModuleConfiguration configuration) {
+    public static EmbeddingCreator createEmbeddingCreator(
+            ModuleConfiguration configuration, ContextStore contextStore) {
         return switch (configuration.name()) {
             case "ollama" -> new OllamaEmbeddingCreator(configuration);
             case "openai" -> new OpenAiEmbeddingCreator(configuration);

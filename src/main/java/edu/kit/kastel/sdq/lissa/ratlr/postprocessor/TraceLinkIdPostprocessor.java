@@ -5,13 +5,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
 /**
  * Base class for postprocessors that modify trace link identifiers.
  * This class provides functionality to process trace links based on different
  * module configurations and ID processing strategies.
- *
+ * <p>
+ * Postprocessors can access shared context via a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore},
+ * which is passed to their factory method.
+ * </p>
  * The class supports various types of trace link processing:
  * <ul>
  *     <li>req2code: Requirements to code trace links</li>
@@ -52,10 +56,12 @@ public class TraceLinkIdPostprocessor {
      * The type of postprocessor is determined by the module name in the configuration.
      *
      * @param moduleConfiguration The module configuration specifying the type of postprocessor
+     * @param contextStore The shared context store for pipeline components
      * @return A new trace link ID postprocessor instance
      * @throws IllegalStateException if the module name is not recognized
      */
-    public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(ModuleConfiguration moduleConfiguration) {
+    public static TraceLinkIdPostprocessor createTraceLinkIdPostprocessor(
+            ModuleConfiguration moduleConfiguration, ContextStore contextStore) {
         return switch (moduleConfiguration.name()) {
             case "req2code" -> new TraceLinkIdPostprocessor(IdProcessor.REQ2CODE);
             case "sad2code" -> new TraceLinkIdPostprocessor(IdProcessor.SAD2CODE);
