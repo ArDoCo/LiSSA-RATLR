@@ -168,7 +168,7 @@ public final class Statistics {
      * @throws UncheckedIOException If there are issues reading the gold standard file
      */
     @NotNull
-    private static Set<TraceLink> getTraceLinksFromGoldStandard(GoldStandardConfiguration goldStandardConfiguration) {
+    public static Set<TraceLink> getTraceLinksFromGoldStandard(GoldStandardConfiguration goldStandardConfiguration) {
         File groundTruth = new File(goldStandardConfiguration.path());
         boolean header = goldStandardConfiguration.hasHeader();
         logger.info("Skipping header: {}", header);
