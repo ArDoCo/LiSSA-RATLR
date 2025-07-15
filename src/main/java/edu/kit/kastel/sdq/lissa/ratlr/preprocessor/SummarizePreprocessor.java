@@ -16,7 +16,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Artifact;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
-import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
 import dev.langchain4j.model.chat.ChatModel;
 
@@ -111,9 +110,7 @@ public class SummarizePreprocessor extends Preprocessor {
         List<Callable<String>> tasks = new ArrayList<>();
         for (String request : requests) {
             tasks.add(() -> {
-                String key = KeyGenerator.generateKey(request);
-                CacheKey cacheKey =
-                        new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request, key);
+                CacheKey cacheKey = CacheKey.of(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request);
 
                 String cachedResponse = cache.get(cacheKey, String.class);
                 if (cachedResponse != null) {

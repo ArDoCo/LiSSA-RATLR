@@ -19,7 +19,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
-import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
 
@@ -179,8 +178,8 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
      */
     private static float[] calculateFinalEmbedding(
             EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, Element element) {
-        String key = KeyGenerator.generateKey(element.getContent());
-        CacheKey cacheKey = new CacheKey(rawNameOfModel, -1, CacheKey.Mode.EMBEDDING, element.getContent(), key);
+
+        CacheKey cacheKey = CacheKey.of(rawNameOfModel, -1, CacheKey.Mode.EMBEDDING, element.getContent());
 
         float[] cachedEmbedding = cache.get(cacheKey, float[].class);
         if (cachedEmbedding != null) {
@@ -217,7 +216,7 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     private static float[] tryToFixWithLength(
             EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, CacheKey key, String content) {
         String newKey = key.localKey() + "_fixed_" + MAX_TOKEN_LENGTH;
-        CacheKey newCacheKey = new CacheKey(
+        CacheKey newCacheKey = CacheKey.ofRaw(
                 rawNameOfModel,
                 -1,
                 CacheKey.Mode.EMBEDDING,

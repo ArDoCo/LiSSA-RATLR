@@ -13,7 +13,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
-import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -179,9 +178,7 @@ public class ReasoningClassifier extends Classifier {
         messages.add(new UserMessage(request));
 
         // TODO Don't rely on messages.toString() as it is not stable
-        String key = KeyGenerator.generateKey(messages.toString());
-        CacheKey cacheKey =
-                new CacheKey(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString(), key);
+        CacheKey cacheKey = CacheKey.of(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString());
 
         String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {

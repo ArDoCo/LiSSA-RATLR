@@ -8,12 +8,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
+
 /**
  * Represents a key for caching operations in the LiSSA framework.
  * This record is used to uniquely identify cached values based on various parameters
  * such as the model used, seed value, operation mode, and content.
- *
+ * <p>
  * The key can be serialized to JSON for storage and retrieval from the cache.
+ * <p>
+ * Please always use the {@link #of(String, int, Mode, String)} method to create a new instance.
  */
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -62,6 +66,18 @@ public record CacheKey(
      */
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
 
+    public static CacheKey of(String model, int seed, Mode mode, String content) {
+        return new CacheKey(model, seed, mode, content, KeyGenerator.generateKey(content));
+    }
+
+    /**
+     * Only use this method if you want to use a custom local key. You mostly do not want to do this. Only for special handling of embeddings.
+     * You should always prefer the {@link #of(String, int, Mode, String)} method.
+     */
+    public static CacheKey ofRaw(String model, int seed, Mode mode, String content, String localKey) {
+        return new CacheKey(model, seed, mode, content, localKey);
+    }
+
     /**
      * Converts this cache key to a JSON string representation.
      * The resulting string can be used as a unique identifier for the cached value.
@@ -69,7 +85,7 @@ public record CacheKey(
      * @return A JSON string representation of this cache key
      * @throws IllegalArgumentException If the key cannot be serialized to JSON
      */
-    public String toRawKey() {
+    public String toJsonKey() {
         try {
             return MAPPER.writeValueAsString(this);
         } catch (JsonProcessingException e) {

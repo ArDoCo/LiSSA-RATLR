@@ -8,10 +8,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaConstructorCall;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
+import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Environment;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
@@ -75,4 +78,23 @@ class ArchitectureTest {
             .orShould()
             .callMethod(List.class, "forEachOrdered", Consumer.class)
             .because("Lambdas should be functional. ForEach is typically used for side-effects.");
+
+    /**
+     * CacheKeys should only be created using the #of method of the CacheKey class.
+     */
+    @ArchTest
+    static final ArchRule cacheKeysShouldBeCreatedUsingKeyGenerator = noClasses()
+            .that()
+            .haveNameNotMatching(CacheKey.class.getName())
+            .should()
+            .callConstructorWhere(new DescribedPredicate<JavaConstructorCall>("calls KeyGenerator constructor") {
+                @Override
+                public boolean test(JavaConstructorCall javaConstructorCall) {
+                    return javaConstructorCall
+                            .getTarget()
+                            .getOwner()
+                            .getFullName()
+                            .equals(CacheKey.class.getName());
+                }
+            });
 }
