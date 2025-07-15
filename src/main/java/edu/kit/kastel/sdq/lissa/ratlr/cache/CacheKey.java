@@ -73,7 +73,9 @@ public record CacheKey(
     /**
      * Only use this method if you want to use a custom local key. You mostly do not want to do this. Only for special handling of embeddings.
      * You should always prefer the {@link #of(String, int, Mode, String)} method.
+     * @deprecated please use {@link #of(String, int, Mode, String)} instead.
      */
+    @Deprecated(forRemoval = false)
     public static CacheKey ofRaw(String model, int seed, Mode mode, String content, String localKey) {
         return new CacheKey(model, seed, mode, content, localKey);
     }

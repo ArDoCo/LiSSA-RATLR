@@ -216,6 +216,9 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     private static float[] tryToFixWithLength(
             EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, CacheKey key, String content) {
         String newKey = key.localKey() + "_fixed_" + MAX_TOKEN_LENGTH;
+
+        // We need the old keys for backwards compatibility
+        @SuppressWarnings("deprecation")
         CacheKey newCacheKey = CacheKey.ofRaw(
                 rawNameOfModel,
                 -1,
