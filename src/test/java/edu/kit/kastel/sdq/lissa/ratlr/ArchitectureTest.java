@@ -87,7 +87,7 @@ class ArchitectureTest {
             .that()
             .haveNameNotMatching(CacheKey.class.getName())
             .should()
-            .callConstructorWhere(new DescribedPredicate<JavaConstructorCall>("calls KeyGenerator constructor") {
+            .callConstructorWhere(new DescribedPredicate<JavaConstructorCall>("calls CacheKey constructor") {
                 @Override
                 public boolean test(JavaConstructorCall javaConstructorCall) {
                     return javaConstructorCall
