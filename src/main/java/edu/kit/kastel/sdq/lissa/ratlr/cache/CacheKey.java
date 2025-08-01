@@ -33,6 +33,11 @@ public record CacheKey(
         int seed,
 
         /**
+         * The temperature setting used in the cached operation.
+         */
+        double temperature,
+
+        /**
          * The mode of operation that was cached (e.g., embedding generation or chat).
          */
         Mode mode,
@@ -66,18 +71,19 @@ public record CacheKey(
      */
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
 
-    public static CacheKey of(String model, int seed, Mode mode, String content) {
-        return new CacheKey(model, seed, mode, content, KeyGenerator.generateKey(content));
+    public static CacheKey of(String model, int seed, double temperature, Mode mode, String content) {
+        return new CacheKey(model, seed, temperature, mode, content, KeyGenerator.generateKey(content));
     }
 
     /**
      * Only use this method if you want to use a custom local key. You mostly do not want to do this. Only for special handling of embeddings.
-     * You should always prefer the {@link #of(String, int, Mode, String)} method.
-     * @deprecated please use {@link #of(String, int, Mode, String)} instead.
+     * You should always prefer the {@link #of(String, int, double, Mode, String)} method.
+     * @deprecated please use {@link #of(String, int, double, Mode, String)} instead.
      */
     @Deprecated(forRemoval = false)
-    public static CacheKey ofRaw(String model, int seed, Mode mode, String content, String localKey) {
-        return new CacheKey(model, seed, mode, content, localKey);
+    public static CacheKey ofRaw(
+            String model, int seed, double temperature, Mode mode, String content, String localKey) {
+        return new CacheKey(model, seed, temperature, mode, content, localKey);
     }
 
     /**

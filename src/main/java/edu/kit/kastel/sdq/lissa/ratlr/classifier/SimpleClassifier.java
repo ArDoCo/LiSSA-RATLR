@@ -63,8 +63,7 @@ public class SimpleClassifier extends Classifier {
         super(ChatLanguageModelProvider.threads(configuration), contextStore);
         this.provider = new ChatLanguageModelProvider(configuration);
         this.template = configuration.argumentAsString("template", DEFAULT_TEMPLATE);
-        this.cache = CacheManager.getDefaultInstance()
-                .getCache(this.getClass().getSimpleName() + "_" + provider.modelName() + "_" + provider.seed());
+        this.cache = CacheManager.getDefaultInstance().getCache(this, provider.getCacheParameters());
         this.llm = provider.createChatModel();
     }
 
@@ -139,7 +138,8 @@ public class SimpleClassifier extends Classifier {
                 .replace("{target_type}", target.getType())
                 .replace("{target_content}", target.getContent());
 
-        CacheKey cacheKey = CacheKey.of(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request);
+        CacheKey cacheKey =
+                CacheKey.of(provider.modelName(), provider.seed(), provider.temperature(), CacheKey.Mode.CHAT, request);
         String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {
             return cachedResponse;

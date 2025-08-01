@@ -55,8 +55,7 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
      */
     protected CachedEmbeddingCreator(ContextStore contextStore, String model, int threads, String... params) {
         super(contextStore);
-        this.cache = CacheManager.getDefaultInstance()
-                .getCache(this.getClass().getSimpleName() + "_" + Objects.requireNonNull(model));
+        this.cache = CacheManager.getDefaultInstance().getCache(this, new String[] {model});
         this.embeddingModel = Objects.requireNonNull(createEmbeddingModel(model, params));
         this.rawNameOfModel = model;
         this.threads = Math.max(1, threads);
@@ -177,7 +176,7 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
     private static float[] calculateFinalEmbedding(
             EmbeddingModel embeddingModel, Cache cache, String rawNameOfModel, Element element) {
 
-        CacheKey cacheKey = CacheKey.of(rawNameOfModel, -1, CacheKey.Mode.EMBEDDING, element.getContent());
+        CacheKey cacheKey = CacheKey.of(rawNameOfModel, -1, -1, CacheKey.Mode.EMBEDDING, element.getContent());
 
         float[] cachedEmbedding = cache.get(cacheKey, float[].class);
         if (cachedEmbedding != null) {
@@ -219,6 +218,7 @@ abstract class CachedEmbeddingCreator extends EmbeddingCreator {
         @SuppressWarnings("deprecation")
         CacheKey newCacheKey = CacheKey.ofRaw(
                 rawNameOfModel,
+                -1,
                 -1,
                 CacheKey.Mode.EMBEDDING,
                 "(FIXED::%d): %s".formatted(MAX_TOKEN_LENGTH, content),

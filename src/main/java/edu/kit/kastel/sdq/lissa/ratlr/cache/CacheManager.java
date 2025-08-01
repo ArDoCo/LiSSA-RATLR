@@ -67,10 +67,20 @@ public final class CacheManager {
      * This method is designed for internal use by model implementations.
      * The cache name will be sanitized by replacing colons with double underscores.
      *
-     * @param name The name of the cache (without file extension)
+     * @param origin The class origin (caller, {@code this})
+     * @param parameters a list of parameters that define what makes a cache unique. E.g., the model name, temperature, and seed.
      * @return A cache instance for the specified name
      */
-    public Cache getCache(String name) {
+    public Cache getCache(Object origin, String[] parameters) {
+        if (origin == null || parameters == null) {
+            throw new IllegalArgumentException("Origin and parameters must not be null");
+        }
+        for (String param : parameters) {
+            if (param == null) {
+                throw new IllegalArgumentException("Parameters must not contain null values");
+            }
+        }
+        String name = origin.getClass().getSimpleName() + "_" + String.join("_", parameters);
         return getCache(name, true);
     }
 

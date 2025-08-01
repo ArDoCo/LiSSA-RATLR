@@ -64,8 +64,7 @@ public class SummarizePreprocessor extends Preprocessor {
         this.template = moduleConfiguration.argumentAsString("template", "Summarize the following {type}: {content}");
         this.provider = new ChatLanguageModelProvider(moduleConfiguration);
         this.threads = ChatLanguageModelProvider.threads(moduleConfiguration);
-        this.cache = CacheManager.getDefaultInstance()
-                .getCache(this.getClass().getSimpleName() + "_" + provider.modelName() + "_" + provider.seed());
+        this.cache = CacheManager.getDefaultInstance().getCache(this, provider.getCacheParameters());
     }
 
     /**
@@ -108,7 +107,8 @@ public class SummarizePreprocessor extends Preprocessor {
         List<Callable<String>> tasks = new ArrayList<>();
         for (String request : requests) {
             tasks.add(() -> {
-                CacheKey cacheKey = CacheKey.of(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, request);
+                CacheKey cacheKey = CacheKey.of(
+                        provider.modelName(), provider.seed(), provider.temperature(), CacheKey.Mode.CHAT, request);
 
                 String cachedResponse = cache.get(cacheKey, String.class);
                 if (cachedResponse != null) {

@@ -62,8 +62,7 @@ public class ReasoningClassifier extends Classifier {
     public ReasoningClassifier(ModuleConfiguration configuration, ContextStore contextStore) {
         super(ChatLanguageModelProvider.threads(configuration), contextStore);
         this.provider = new ChatLanguageModelProvider(configuration);
-        this.cache = CacheManager.getDefaultInstance()
-                .getCache(this.getClass().getSimpleName() + "_" + provider.modelName() + "_" + provider.seed());
+        this.cache = CacheManager.getDefaultInstance().getCache(this, provider.getCacheParameters());
         this.prompt = configuration.argumentAsStringByEnumIndex("prompt", 0, Prompt.values(), it -> it.promptTemplate);
         this.useOriginalArtifacts = configuration.argumentAsBoolean("use_original_artifacts", false);
         this.useSystemMessage = configuration.argumentAsBoolean("use_system_message", true);
@@ -178,7 +177,8 @@ public class ReasoningClassifier extends Classifier {
         messages.add(new UserMessage(request));
 
         // TODO Don't rely on messages.toString() as it is not stable
-        CacheKey cacheKey = CacheKey.of(provider.modelName(), provider.seed(), CacheKey.Mode.CHAT, messages.toString());
+        CacheKey cacheKey = CacheKey.of(
+                provider.modelName(), provider.seed(), provider.temperature(), CacheKey.Mode.CHAT, messages.toString());
 
         String cachedResponse = cache.get(cacheKey, String.class);
         if (cachedResponse != null) {

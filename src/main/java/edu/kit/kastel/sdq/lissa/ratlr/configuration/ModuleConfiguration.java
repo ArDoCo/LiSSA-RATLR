@@ -153,6 +153,29 @@ public final class ModuleConfiguration {
     }
 
     /**
+     * Retrieves an argument as a double.
+     *
+     * @param key The key of the argument to retrieve
+     * @return The argument value as a double
+     * @throws NumberFormatException If the argument cannot be parsed as a double
+     */
+    public double argumentAsDouble(String key) {
+        return Double.parseDouble(argumentAsString(key));
+    }
+
+    /**
+     * Retrieves an argument as a double, using a default value if not found.
+     *
+     * @param key The key of the argument to retrieve
+     * @param defaultValue The default value to use if the argument is not found
+     * @return The argument value as a double, or the default value
+     * @throws NumberFormatException If the argument cannot be parsed as a double
+     */
+    public double argumentAsDouble(String key, double defaultValue) {
+        return Double.parseDouble(argumentAsString(key, String.valueOf(defaultValue)));
+    }
+
+    /**
      * Retrieves an argument as a boolean.
      *
      * @param key The key of the argument to retrieve
