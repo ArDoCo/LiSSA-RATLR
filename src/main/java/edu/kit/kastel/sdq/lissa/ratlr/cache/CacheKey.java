@@ -17,40 +17,19 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
  * <p>
  * The key can be serialized to JSON for storage and retrieval from the cache.
  * <p>
- * Please always use the {@link #of(String, int, Mode, String)} method to create a new instance.
+ * Please always use the {@link #of(String, int, double, Mode, String)} method to create a new instance.
+ *
+ * @param model The identifier of the model used for the cached operation.
+ * @param seed The seed value used for randomization in the cached operation.
+ * @param temperature The temperature setting used in the cached operation.
+ * @param mode The mode of operation that was cached (e.g., embedding generation or chat
+ * @param content The content that was processed in the cached operation.
+ * @param localKey A local key for additional identification, not included in JSON serialization.
  */
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CacheKey(
-        /**
-         * The identifier of the model used for the cached operation.
-         */
-        String model,
-
-        /**
-         * The seed value used for randomization in the cached operation.
-         */
-        int seed,
-
-        /**
-         * The temperature setting used in the cached operation.
-         */
-        double temperature,
-
-        /**
-         * The mode of operation that was cached (e.g., embedding generation or chat).
-         */
-        Mode mode,
-
-        /**
-         * The content that was processed in the cached operation.
-         */
-        String content,
-
-        /**
-         * A local key for additional identification, not included in JSON serialization.
-         */
-        @JsonIgnore String localKey) {
+        String model, int seed, double temperature, Mode mode, String content, @JsonIgnore String localKey) {
     /**
      * Defines the possible modes of operation that can be cached.
      */
