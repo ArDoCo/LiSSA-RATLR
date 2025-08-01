@@ -69,7 +69,7 @@ public class ChatLanguageModelProvider {
     /**
      * Default temperature setting for the model.
      */
-    public static final int DEFAULT_TEMPERATURE = 0;
+    public static final double DEFAULT_TEMPERATURE = 0.0;
 
     /**
      * The platform to use for the language model.
