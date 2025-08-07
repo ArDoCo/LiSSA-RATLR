@@ -1,6 +1,8 @@
 /* Licensed under MIT 2025. */
 package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
+
 /**
  * Enum representing supported chat language model platforms.
  * Each platform specifies the number of threads to use for parallel execution.
@@ -61,14 +63,22 @@ public enum ChatLanguageModelPlatform {
     /**
      * Returns the enum value for the given platform name (case-insensitive).
      *
-     * @param name the platform name (e.g., "openai")
+     * @param moduleConfiguration the configuration containing the platform name
      * @return the corresponding enum value
      * @throws IllegalArgumentException if the name does not match any platform
      */
-    public static ChatLanguageModelPlatform fromString(String name) {
-        for (ChatLanguageModelPlatform p : values()) {
-            if (p.name().equalsIgnoreCase(name)) {
-                return p;
+    public static ChatLanguageModelPlatform fromModuleConfiguration(ModuleConfiguration moduleConfiguration) {
+        String[] modeXplatform = moduleConfiguration.name().split(Classifier.CONFIG_NAME_SEPARATOR, 2);
+        if (modeXplatform.length < 2) {
+            throw new IllegalArgumentException("Invalid configuration name: '%s'. Expected format: <mode>%s<platform>"
+                    .formatted(moduleConfiguration.name(), Classifier.CONFIG_NAME_SEPARATOR));
+        }
+
+        String name = modeXplatform[1];
+
+        for (ChatLanguageModelPlatform languageModelPlatform : values()) {
+            if (languageModelPlatform.name().equalsIgnoreCase(name)) {
+                return languageModelPlatform;
             }
         }
         throw new IllegalArgumentException("Unknown platform: " + name);
