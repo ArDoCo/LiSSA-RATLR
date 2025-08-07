@@ -81,6 +81,10 @@ public class ChatLanguageModelProvider {
      */
     public ChatLanguageModelProvider(ModuleConfiguration configuration) {
         String[] modeXplatform = configuration.name().split(Classifier.CONFIG_NAME_SEPARATOR, 2);
+        if (modeXplatform.length < 2) {
+            throw new IllegalArgumentException("Invalid configuration name: '" + configuration.name() +
+                "'. Expected format: <mode>" + Classifier.CONFIG_NAME_SEPARATOR + "<platform>");
+        }
         this.platform = ChatLanguageModelPlatform.fromString(modeXplatform[1]);
         initModelPlatform(configuration);
     }
