@@ -39,28 +39,10 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
  *     </ul>
  *   </li>
  * </ul>
+ *
+ * @see ChatLanguageModelPlatform
  */
 public class ChatLanguageModelProvider {
-    /**
-     * Identifier for the OpenAI platform.
-     */
-    public static final String OPENAI = "openai";
-
-    /**
-     * Identifier for the Ollama platform.
-     */
-    public static final String OLLAMA = "ollama";
-
-    /**
-     * Identifier for the Blablador platform.
-     */
-    public static final String BLABLADOR = "blablador";
-
-    /**
-     * Identifier for the DeepSeek platform.
-     */
-    public static final String DEEPSEEK = "deepseek";
-
     /**
      * Default seed value for model.
      */
@@ -74,7 +56,7 @@ public class ChatLanguageModelProvider {
     /**
      * The platform to use for the language model.
      */
-    private final String platform;
+    private final ChatLanguageModelPlatform platform;
 
     /**
      * The name of the model to use.
@@ -99,11 +81,7 @@ public class ChatLanguageModelProvider {
      */
     public ChatLanguageModelProvider(ModuleConfiguration configuration) {
         String[] modeXplatform = configuration.name().split(Classifier.CONFIG_NAME_SEPARATOR, 2);
-        if (modeXplatform.length == 1) {
-            this.platform = null;
-            return;
-        }
-        this.platform = modeXplatform[1];
+        this.platform = ChatLanguageModelPlatform.fromString(modeXplatform[1]);
         initModelPlatform(configuration);
     }
 
@@ -119,7 +97,6 @@ public class ChatLanguageModelProvider {
             case OLLAMA -> createOllamaChatModel(modelName, seed, temperature);
             case BLABLADOR -> createBlabladorChatModel(modelName, seed, temperature);
             case DEEPSEEK -> createDeepSeekChatModel(modelName, seed, temperature);
-            default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
     }
 
@@ -132,12 +109,7 @@ public class ChatLanguageModelProvider {
      */
     private void initModelPlatform(ModuleConfiguration configuration) {
         final String modelKey = "model";
-        this.modelName = switch (platform) {
-            case OPENAI -> configuration.argumentAsString(modelKey, "gpt-4o-mini");
-            case OLLAMA -> configuration.argumentAsString(modelKey, "llama3:8b");
-            case BLABLADOR -> configuration.argumentAsString(modelKey, "2 - Llama 3.3 70B instruct");
-            default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
-        };
+        this.modelName = configuration.argumentAsString(modelKey, platform.getDefaultModel());
         this.seed = configuration.argumentAsInt("seed", DEFAULT_SEED);
         this.temperature = configuration.argumentAsDouble("temperature", DEFAULT_TEMPERATURE);
     }
@@ -177,7 +149,13 @@ public class ChatLanguageModelProvider {
      * @return The number of threads to use
      */
     public static int threads(ModuleConfiguration configuration) {
-        return configuration.name().contains(OPENAI) || configuration.name().contains(BLABLADOR) ? 100 : 1;
+        String[] modeXplatform = configuration.name().split(Classifier.CONFIG_NAME_SEPARATOR, 2);
+        if (modeXplatform.length == 1) {
+            throw new IllegalArgumentException(
+                    "Invalid configuration: platform not specified in module name: " + configuration.name());
+        }
+        ChatLanguageModelPlatform platform = ChatLanguageModelPlatform.fromString(modeXplatform[1]);
+        return platform.getThreads();
     }
 
     /**
