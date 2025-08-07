@@ -32,7 +32,7 @@ public enum ChatLanguageModelPlatform {
     /**
      * DeepSeek platform (1 thread).
      */
-    DEEPSEEK(1, "deepseek-coder");
+    DEEPSEEK(1, "deepseek-chat");
 
     private final int threads;
     private final String defaultModel;
